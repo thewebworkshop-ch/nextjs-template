@@ -1,0 +1,52 @@
+name: "Setup Node.js and pnpm"
+description: "Checkout code, setup Node.js, install pnpm, cache dependencies, and install packages"
+
+inputs:
+  install-dependencies:
+    description: "Whether to install dependencies"
+    required: false
+    default: "true"
+  generate-prisma:
+    description: "Whether to generate Prisma client"
+    required: false
+    default: "true"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+      with:
+        node-version-file: "package.json"
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+
+    - name: Get pnpm store directory
+      id: pnpm-cache
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+    - name: Setup pnpm cache
+      uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+      with:
+        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    - name: Install dependencies
+      if: inputs.install-dependencies == 'true'
+      shell: bash
+      run: pnpm install --frozen-lockfile --ignore-scripts
+
+    - name: Run prepare scripts
+      if: inputs.install-dependencies == 'true'
+      shell: bash
+      run: pnpm run prepare
+
+    - name: Generate Prisma Client
+      if: inputs.generate-prisma == 'true' && inputs.install-dependencies == 'true'
+      shell: bash
+      run: pnpm exec prisma generate
