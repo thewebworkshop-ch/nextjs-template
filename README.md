@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js Template
 
-## Getting Started
+Production-ready Next.js template
 
-First, run the development server:
+## Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+| Category           | Technology                   |
+| ------------------ | ---------------------------- |
+| **Framework**      | Next.js, React, TypeScript   |
+| **Styling**        | Tailwind CSS, shadcn/ui, CVA |
+| **Database**       | Prisma ORM + PostgreSQL      |
+| **Authentication** | NextAuth.js                  |
+| **Forms**          | React Hook Form + Zod        |
+| **Emails**         | Resend                       |
+| **Environment**    | t3-oss/env                   |
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Quality & Testing
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Category           | Technology                      |
+| ------------------ | ------------------------------- |
+| **Unit Tests**     | Vitest + React Testing Library  |
+| **E2E Tests**      | Playwright + axe-core           |
+| **API Mocking**    | MSW (Mock Service Worker)       |
+| **Component Docs** | Storybook                       |
+| **Formatting**     | Prettier                        |
+| **Linting**        | ESLint                          |
+| **Git Hooks**      | Husky                           |
+| **Coverage**       | Vitest (80% per-file threshold) |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Git Hooks
 
-## Learn More
+| Hook           | Technology                                |
+| -------------- | ----------------------------------------- |
+| **Pre-commit** | Gitleaks + lint-staged + TypeScript check |
+| **Commit-msg** | commitlint                                |
+| **Pre-push**   | Unit tests + build verification           |
 
-To learn more about Next.js, take a look at the following resources:
+## Security & CI/CD
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Category               | Technology                          |
+| ---------------------- | ----------------------------------- |
+| **CI/CD**              | GitHub Actions                      |
+| **Secret Scanning**    | Gitleaks + GitHub Secret Protection |
+| **SCA**                | Trivy                               |
+| **License Compliance** | Trivy                               |
+| **Container Scanning** | Trivy                               |
+| **IaC Scanning**       | Trivy                               |
+| **SAST**               | Semgrep                             |
+| **Dependency Updates** | Renovate + Dependabot Alerts        |
+| **Security Headers**   | CSP, HSTS, X-Frame-Options          |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Environment Variables
 
-## Deploy on Vercel
+Environment variables are managed through Infisical and validated at runtime using `@t3-oss/env-nextjs`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Docker
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Optimized production image using multi-stage build with Node.js on Debian slim. Validated against CIS Docker Benchmark.
+
+<br>
+
+© [The Web Workshop](https://thewebworkshop.ch)
