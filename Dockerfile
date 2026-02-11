@@ -1,0 +1,85 @@
+# syntax=docker.io/docker/dockerfile:1
+
+FROM node:24.13.0-trixie-slim AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+WORKDIR /app
+
+# Install dependencies based on the preferred package manager
+# Copy package files explicitly (no glob patterns for security)
+COPY package.json ./
+COPY pnpm-lock.yaml ./
+# Use --ignore-scripts to skip postinstall (prisma generate) - schema not copied yet
+RUN corepack enable pnpm && pnpm i --frozen-lockfile --ignore-scripts
+
+
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+
+# Copy package files from deps stage
+COPY --from=deps /app/package.json ./
+COPY --from=deps /app/pnpm-lock.yaml ./
+
+# Copy source files explicitly (no recursive COPY . . for security)
+COPY src/ ./src/
+COPY public/ ./public/
+COPY prisma/ ./prisma/
+COPY next.config.ts ./
+COPY tsconfig.json ./
+COPY postcss.config.mjs ./
+COPY components.json ./
+COPY prisma.config.ts ./
+
+# Generate Prisma Client (output: src/generated/prisma per schema.prisma)
+RUN corepack enable pnpm && pnpm exec prisma generate
+
+# Next.js collects completely anonymous telemetry data about general usage.
+# Learn more here: https://nextjs.org/telemetry
+# Uncomment the following line in case you want to disable telemetry during the build.
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Skip env validation during build (env vars are injected at runtime)
+ENV SKIP_ENV_VALIDATION=1
+
+RUN corepack enable pnpm && pnpm run build
+
+# Production image, copy all the files and run next
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+# Memory: Node.js 20+ auto-detects container limits
+# Override via Infomaniak env vars if needed: NODE_OPTIONS="--max-old-space-size=1024"
+
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/public ./public
+
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+# chmod=555 = read+execute for all, no write (security best practice)
+COPY --from=builder --chown=root:nodejs --chmod=555 /app/.next/standalone ./
+COPY --from=builder --chown=root:nodejs --chmod=555 /app/.next/static ./.next/static
+
+# Note: Prisma client is in src/generated/prisma (custom output path)
+# and is bundled automatically by Next.js standalone output
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT=3000
+
+# Health check for container orchestration
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD node -e "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"
+
+# server.js is created by next build from the standalone output
+# https://nextjs.org/docs/pages/api-reference/config/next-config-js/output
+ENV HOSTNAME="0.0.0.0"
+CMD ["node", "server.js"]

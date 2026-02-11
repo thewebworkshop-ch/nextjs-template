@@ -1,0 +1,126 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigests",
+    ":gitSignOff",
+    ":semanticCommits",
+    "mergeConfidence:all-badges"
+  ],
+  "ignoreUnstable": true,
+  "labels": ["dependencies"],
+  "schedule": ["before 7am on monday"],
+  "timezone": "Europe/Zurich",
+  "prHourlyLimit": 0,
+  "prConcurrentLimit": 5,
+  "rebaseWhen": "behind-base-branch",
+  "platformAutomerge": true,
+  "automerge": true,
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"],
+    "schedule": ["at any time"],
+    "minimumReleaseAge": "0 days"
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 7am on monday"]
+  },
+  "packageRules": [
+    {
+      "description": "Group Docker updates",
+      "matchManagers": ["dockerfile"],
+      "groupName": "docker"
+    },
+    {
+      "description": "Group GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "groupName": "github-actions"
+    },
+    {
+      "description": "Group Node.js updates",
+      "matchDepNames": ["node"],
+      "groupName": "node"
+    },
+    {
+      "description": "Group React packages (must stay in sync)",
+      "matchPackageNames": [
+        "react",
+        "react-dom",
+        "@types/react",
+        "@types/react-dom"
+      ],
+      "groupName": "react"
+    },
+    {
+      "description": "Group Prisma packages (client + schema must match)",
+      "groupName": "prisma",
+      "matchPackageNames": ["@prisma/**", "prisma"]
+    },
+    {
+      "description": "Group Playwright packages (test runner + browsers)",
+      "groupName": "playwright",
+      "matchPackageNames": [
+        "@playwright/**",
+        "playwright",
+        "@axe-core/playwright"
+      ]
+    },
+    {
+      "description": "Group Next.js with its ESLint config",
+      "matchPackageNames": ["next", "eslint-config-next"],
+      "groupName": "next.js"
+    },
+    {
+      "description": "Security updates: high priority",
+      "matchDepTypes": ["dependencies", "devDependencies"],
+      "matchUpdateTypes": ["patch", "minor", "major"],
+      "matchCategories": ["security"],
+      "prPriority": 10
+    },
+    {
+      "description": "Default: wait 7 days before creating PR (badges stabilize)",
+      "matchPackageNames": ["*"],
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "Major updates: require dashboard approval (14-day delay for community vetting)",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "dependencyDashboardApproval": true,
+      "minimumReleaseAge": "14 days"
+    },
+    {
+      "description": "Production minor: require dashboard approval (7-day delay for badge stabilization)",
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["minor"],
+      "automerge": false,
+      "dependencyDashboardApproval": true,
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "Production deps: patch after 14 days",
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["patch"],
+      "minimumReleaseAge": "14 days"
+    },
+    {
+      "description": "Show both Merge Confidence and OpenSSF Scorecard badges",
+      "matchSourceUrls": ["https://github.com/**"],
+      "prBodyColumns": [
+        "Package",
+        "Type",
+        "Update",
+        "Change",
+        "Age",
+        "Adoption",
+        "Passing",
+        "Confidence",
+        "OpenSSF"
+      ],
+      "prBodyDefinitions": {
+        "OpenSSF": "[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/{{sourceRepo}}/badge)](https://securityscorecards.dev/viewer/?uri=github.com/{{sourceRepo}})"
+      }
+    }
+  ]
+}
