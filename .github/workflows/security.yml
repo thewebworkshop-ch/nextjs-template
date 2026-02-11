@@ -81,11 +81,20 @@ jobs:
       - name: Check for CIS failures (ignore manual checks)
         if: always()
         run: |
-          FAIL_COUNT=$(jq '[.SummaryControls[]? | select(has("TotalFail") and .TotalFail > 0)] | length' trivy-cis-results.json 2>/dev/null || echo "0")
-          echo "CIS checks with failures: $FAIL_COUNT"
+          if [ ! -f trivy-cis-results.json ]; then
+            echo "❌ CIS results file not found"
+            exit 1
+          fi
+          CONTROL_COUNT=$(jq '.SummaryControls | length' trivy-cis-results.json 2>/dev/null || echo "0")
+          if [ "$CONTROL_COUNT" -eq 0 ]; then
+            echo "❌ Unexpected JSON structure - SummaryControls missing or empty"
+            exit 1
+          fi
+          FAIL_COUNT=$(jq '[.SummaryControls[] | select(has("TotalFail") and .TotalFail > 0)] | length' trivy-cis-results.json)
+          echo "CIS checks with failures: $FAIL_COUNT (out of $CONTROL_COUNT controls)"
           if [ "$FAIL_COUNT" -gt 0 ]; then
             echo "❌ CIS Docker Benchmark has $FAIL_COUNT failing checks"
-            jq '.SummaryControls[]? | select(has("TotalFail") and .TotalFail > 0) | {ID, Name, Severity, TotalFail}' trivy-cis-results.json
+            jq '.SummaryControls[] | select(has("TotalFail") and .TotalFail > 0) | {ID, Name, Severity, TotalFail}' trivy-cis-results.json
             exit 1
           fi
           echo "✅ All automated CIS Docker checks passed (manual checks skipped)"
