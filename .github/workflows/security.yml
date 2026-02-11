@@ -78,18 +78,14 @@ jobs:
         env:
           TRIVY_COMPLIANCE: docker-cis-1.6.0
 
-      - name: Debug - Show CIS JSON structure
-        if: always()
-        run: cat trivy-cis-results.json
-
       - name: Check for CIS failures (ignore manual checks)
         if: always()
         run: |
-          FAIL_COUNT=$(jq '[.Results[]? | select(.Status == "FAIL")] | length' trivy-cis-results.json 2>/dev/null || echo "0")
-          echo "CIS checks with FAIL status: $FAIL_COUNT"
+          FAIL_COUNT=$(jq '[.SummaryControls[]? | select(has("TotalFail") and .TotalFail > 0)] | length' trivy-cis-results.json 2>/dev/null || echo "0")
+          echo "CIS checks with failures: $FAIL_COUNT"
           if [ "$FAIL_COUNT" -gt 0 ]; then
             echo "❌ CIS Docker Benchmark has $FAIL_COUNT failing checks"
-            jq '.Results[]? | select(.Status == "FAIL") | {ID, Name, Status, Severity}' trivy-cis-results.json
+            jq '.SummaryControls[]? | select(has("TotalFail") and .TotalFail > 0) | {ID, Name, Severity, TotalFail}' trivy-cis-results.json
             exit 1
           fi
           echo "✅ All automated CIS Docker checks passed (manual checks skipped)"
