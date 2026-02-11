@@ -6,8 +6,8 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    # Run weekly on Monday at 6am UTC
-    - cron: "0 6 * * 1"
+    # Run weekly on Monday at 4am UTC (6am Europe/Zurich)
+    - cron: "0 4 * * 1"
 
 concurrency:
   group: security-${{ github.head_ref || github.ref_name }}
@@ -43,11 +43,10 @@ jobs:
           category: "trivy-fs"
 
   trivy-docker:
-    name: Trivy Container Scan
+    name: Trivy CIS Docker Benchmark
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      security-events: write
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -65,33 +64,40 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Run Trivy vulnerability scanner (container)
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
-        with:
-          image-ref: "app:scan"
-          format: "sarif"
-          output: "trivy-image-results.sarif"
-          severity: "CRITICAL,HIGH,MEDIUM"
-          exit-code: "0" # Don't fail CI - base image vulns are upstream's responsibility
-
-      - name: Upload Trivy scan results to GitHub Security
-        uses: github/codeql-action/upload-sarif@45cbd0c69e560cd9e7cd7f8c32362050c9b7ded2 # v4.32.2
-        if: always()
-        with:
-          sarif_file: "trivy-image-results.sarif"
-          category: "trivy-container"
-
       - name: Run CIS Docker Benchmark
         uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
+        continue-on-error: true # Trivy parser bug with HEALTHCHECK --startPeriod in image metadata
         with:
           image-ref: "app:scan"
           scan-type: "image"
           scanners: "vuln"
-          format: "table"
-          exit-code: "0" # Informational - don't fail CI
+          format: "json"
+          output: "trivy-cis-results.json"
+          exit-code: "0"
           trivy-config: ""
         env:
           TRIVY_COMPLIANCE: docker-cis-1.6.0
+
+      - name: Check for CIS failures (ignore manual checks)
+        if: always()
+        run: |
+          if [ ! -f trivy-cis-results.json ]; then
+            echo "❌ CIS results file not found"
+            exit 1
+          fi
+          CONTROL_COUNT=$(jq '.SummaryControls | length' trivy-cis-results.json 2>/dev/null || echo "0")
+          if [ "$CONTROL_COUNT" -eq 0 ]; then
+            echo "❌ Unexpected JSON structure - SummaryControls missing or empty"
+            exit 1
+          fi
+          FAIL_COUNT=$(jq '[.SummaryControls[] | select(has("TotalFail") and .TotalFail > 0)] | length' trivy-cis-results.json)
+          echo "CIS checks with failures: $FAIL_COUNT (out of $CONTROL_COUNT controls)"
+          if [ "$FAIL_COUNT" -gt 0 ]; then
+            echo "❌ CIS Docker Benchmark has $FAIL_COUNT failing checks"
+            jq '.SummaryControls[] | select(has("TotalFail") and .TotalFail > 0) | {ID, Name, Severity, TotalFail}' trivy-cis-results.json
+            exit 1
+          fi
+          echo "✅ All automated CIS Docker checks passed (manual checks skipped)"
 
   trivy-config:
     name: Trivy Config Scan
