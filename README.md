@@ -43,7 +43,7 @@ Production-ready Next.js template
 | **Secret Scanning**    | Gitleaks + GitHub Secret Protection |
 | **SCA**                | Trivy                               |
 | **License Compliance** | Trivy                               |
-| **Container Scanning** | Trivy                               |
+| **CIS Docker**         | Trivy                               |
 | **IaC Scanning**       | Trivy                               |
 | **SAST**               | Semgrep                             |
 | **Dependency Updates** | Renovate + Dependabot Alerts        |
