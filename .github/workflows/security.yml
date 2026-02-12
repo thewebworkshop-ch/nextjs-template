@@ -156,7 +156,7 @@ jobs:
           echo "✅ All automated CIS Docker checks passed (manual checks skipped)"
 
   semgrep:
-    name: Semgrep SAST
+    name: Semgrep - SAST
     runs-on: ubuntu-latest
     permissions:
       contents: read

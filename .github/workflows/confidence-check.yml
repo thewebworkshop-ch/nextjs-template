@@ -1,4 +1,4 @@
-name: Confidence Check
+name: Confidence
 
 on:
   pull_request:
@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   check-confidence:
-    name: Check Merge Confidence
+    name: Merge Confidence Check for Renovate PR
     runs-on: ubuntu-latest
     permissions:
       contents: read
