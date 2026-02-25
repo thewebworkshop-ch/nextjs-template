@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   check-confidence:
-    name: Merge Confidence Check for Renovate PR
+    name: Merge Confidence Check for Renovate PRs
     runs-on: ubuntu-latest
     permissions:
       contents: read
