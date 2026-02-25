@@ -117,8 +117,8 @@ jobs:
           push: false
           load: true
           tags: app:scan
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=docker-build
+          cache-to: type=gha,mode=max,scope=docker-build
 
       - name: Run CIS Docker Benchmark
         uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
@@ -126,7 +126,7 @@ jobs:
         with:
           image-ref: "app:scan"
           scan-type: "image"
-          scanners: "vuln"
+          scanners: "misconfig"
           format: "json"
           output: "trivy-cis-results.json"
           exit-code: "0"
