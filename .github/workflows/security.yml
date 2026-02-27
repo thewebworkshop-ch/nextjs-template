@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Run Trivy vulnerability scanning on filesystem
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
+        uses: aquasecurity/trivy-action@e368e328979b113139d6f9068e03accaed98a518 # v0.34.1
         with:
           scan-type: "fs"
           scan-ref: "."
@@ -54,7 +54,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Run Trivy license scanning on filesystem
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
+        uses: aquasecurity/trivy-action@e368e328979b113139d6f9068e03accaed98a518 # v0.34.1
         with:
           scan-type: "fs"
           scan-ref: "."
@@ -83,7 +83,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Run Trivy misconfiguration scanning
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
+        uses: aquasecurity/trivy-action@e368e328979b113139d6f9068e03accaed98a518 # v0.34.1
         with:
           scan-type: "config"
           scan-ref: "."
@@ -124,8 +124,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=docker-build
 
       - name: Run CIS Docker Benchmark
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
-        continue-on-error: true # Trivy parser bug with HEALTHCHECK --startPeriod in image metadata
+        uses: aquasecurity/trivy-action@e368e328979b113139d6f9068e03accaed98a518 # v0.34.1
         with:
           image-ref: "app:scan"
           scan-type: "image"
@@ -159,10 +158,11 @@ jobs:
           echo "✅ All automated CIS Docker checks passed (manual checks skipped)"
 
   semgrep:
-    name: Semgrep - SAST
+    name: Semgrep - SAST & SCA
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      actions: read
       security-events: write
     container:
       image: semgrep/semgrep:latest
