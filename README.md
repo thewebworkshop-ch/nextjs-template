@@ -47,7 +47,7 @@ Production-ready Next.js template
 | **CIS Docker**         | Trivy                               |
 | **IaC Scanning**       | Trivy                               |
 | **SAST**               | Semgrep                             |
-| **Dependency Updates** | Renovate + Dependabot Alerts        |
+| **Dependency Updates** | Renovate + Mergify                  |
 | **Security Headers**   | CSP, HSTS, X-Frame-Options          |
 
 <br>
