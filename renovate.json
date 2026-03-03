@@ -28,7 +28,8 @@
     {
       "description": "Group Docker updates",
       "matchManagers": ["dockerfile"],
-      "groupName": "docker"
+      "groupName": "docker",
+      "pinDigests": true
     },
     {
       "description": "Group GitHub Actions",
@@ -41,14 +42,25 @@
       "groupName": "node"
     },
     {
-      "description": "Group React packages (must stay in sync)",
+      "description": "Group Next.js and React ecosystem (App Router strict compatibility)",
       "matchPackageNames": [
+        "next",
+        "eslint-config-next",
         "react",
         "react-dom",
         "@types/react",
         "@types/react-dom"
       ],
-      "groupName": "react"
+      "groupName": "nextjs-react-ecosystem"
+    },
+    {
+      "description": "Group Tailwind CSS v4 ecosystem",
+      "matchPackageNames": [
+        "tailwindcss",
+        "@tailwindcss/postcss",
+        "prettier-plugin-tailwindcss"
+      ],
+      "groupName": "tailwindcss-ecosystem"
     },
     {
       "description": "Group Prisma packages (client + schema must match)",
@@ -63,11 +75,6 @@
         "playwright",
         "@axe-core/playwright"
       ]
-    },
-    {
-      "description": "Group Next.js with its ESLint config",
-      "matchPackageNames": ["next", "eslint-config-next"],
-      "groupName": "next.js"
     },
     {
       "description": "Security updates: high priority",
