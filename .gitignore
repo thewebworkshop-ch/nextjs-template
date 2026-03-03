@@ -39,3 +39,21 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# IDE - Personal settings only
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+
+*storybook.log
+storybook-static
+
+/src/generated/prisma
