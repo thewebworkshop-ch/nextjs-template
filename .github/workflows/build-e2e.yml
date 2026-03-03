@@ -2,7 +2,9 @@ name: Build & E2E
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - "mergify/merge-queue/**"
   pull_request:
     branches: [main]
 

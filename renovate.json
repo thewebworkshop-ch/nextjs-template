@@ -11,13 +11,12 @@
   "schedule": ["before 7am on monday"],
   "timezone": "Europe/Zurich",
   "prHourlyLimit": 0,
-  "prConcurrentLimit": 5,
+  "prConcurrentLimit": 0,
   "rebaseWhen": "behind-base-branch",
-  "platformAutomerge": true,
-  "automerge": true,
+  "automerge": false,
   "vulnerabilityAlerts": {
     "enabled": true,
-    "labels": ["security"],
+    "labels": ["security", "automerge"],
     "schedule": ["at any time"],
     "minimumReleaseAge": "0 days"
   },
@@ -29,7 +28,8 @@
     {
       "description": "Group Docker updates",
       "matchManagers": ["dockerfile"],
-      "groupName": "docker"
+      "groupName": "docker",
+      "pinDigests": true
     },
     {
       "description": "Group GitHub Actions",
@@ -42,14 +42,25 @@
       "groupName": "node"
     },
     {
-      "description": "Group React packages (must stay in sync)",
+      "description": "Group Next.js and React ecosystem (App Router strict compatibility)",
       "matchPackageNames": [
+        "next",
+        "eslint-config-next",
         "react",
         "react-dom",
         "@types/react",
         "@types/react-dom"
       ],
-      "groupName": "react"
+      "groupName": "nextjs-react-ecosystem"
+    },
+    {
+      "description": "Group Tailwind CSS v4 ecosystem",
+      "matchPackageNames": [
+        "tailwindcss",
+        "@tailwindcss/postcss",
+        "prettier-plugin-tailwindcss"
+      ],
+      "groupName": "tailwindcss-ecosystem"
     },
     {
       "description": "Group Prisma packages (client + schema must match)",
@@ -64,11 +75,6 @@
         "playwright",
         "@axe-core/playwright"
       ]
-    },
-    {
-      "description": "Group Next.js with its ESLint config",
-      "matchPackageNames": ["next", "eslint-config-next"],
-      "groupName": "next.js"
     },
     {
       "description": "Security updates: high priority",
@@ -98,10 +104,17 @@
       "minimumReleaseAge": "7 days"
     },
     {
-      "description": "Production deps: patch after 14 days",
+      "description": "Dev dependencies minor/patch: automerge via Mergify",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "labels": ["automerge"]
+    },
+    {
+      "description": "Production deps: patch after 14 days, automerge via Mergify",
       "matchDepTypes": ["dependencies"],
       "matchUpdateTypes": ["patch"],
-      "minimumReleaseAge": "14 days"
+      "minimumReleaseAge": "14 days",
+      "labels": ["automerge"]
     },
     {
       "description": "Show both Merge Confidence and OpenSSF Scorecard badges",

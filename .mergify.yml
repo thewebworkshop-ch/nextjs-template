@@ -1,0 +1,60 @@
+queue_rules:
+  - name: default
+    merge_method: squash
+    update_method: rebase
+    # Batch up to 5 PRs together into a single CI run
+    batch_size: 5
+    # Wait up to 30 minutes to fill the batch before running CI
+    batch_max_wait_time: 30 min
+    queue_conditions:
+      - check-success=CI / Gitleaks - Secret Scanning
+      - check-success=CI / Prettier - Format Check
+      - check-success=CI / ESLint - Lint Code
+      - check-success=CI / TypeScript Compiler - Type Check
+      - check-success=CI / Vitest - Unit Tests
+      - check-success=CI / Vitest - Storybook Tests
+      - check-success=Build & E2E / Docker Build & E2E Tests
+
+# Security PRs get high priority in the queue
+priority_rules:
+  - name: security-high-priority
+    conditions:
+      - label = security
+    priority: high
+
+pull_request_rules:
+  # Security PRs: automerge immediately with high priority (no batch wait)
+  - name: Queue Renovate security PRs with high priority
+    conditions:
+      - author = renovate[bot]
+      - label = automerge
+      - label = security
+      - check-success=CI / Gitleaks - Secret Scanning
+      - check-success=CI / Prettier - Format Check
+      - check-success=CI / ESLint - Lint Code
+      - check-success=CI / TypeScript Compiler - Type Check
+      - check-success=CI / Vitest - Unit Tests
+      - check-success=CI / Vitest - Storybook Tests
+      - check-success=Build & E2E / Docker Build & E2E Tests
+      - check-success=Confidence / Merge Confidence Check for Renovate PRs
+    actions:
+      queue:
+        name: default
+
+  # Regular Renovate PRs: batch and automerge
+  - name: Queue Renovate automerge PRs
+    conditions:
+      - author = renovate[bot]
+      - label = automerge
+      - -label = security
+      - check-success=CI / Gitleaks - Secret Scanning
+      - check-success=CI / Prettier - Format Check
+      - check-success=CI / ESLint - Lint Code
+      - check-success=CI / TypeScript Compiler - Type Check
+      - check-success=CI / Vitest - Unit Tests
+      - check-success=CI / Vitest - Storybook Tests
+      - check-success=Build & E2E / Docker Build & E2E Tests
+      - check-success=Confidence / Merge Confidence Check for Renovate PRs
+    actions:
+      queue:
+        name: default
