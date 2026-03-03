@@ -22,24 +22,37 @@
   },
   "lockFileMaintenance": {
     "enabled": true,
-    "schedule": ["before 7am on monday"]
+    "schedule": ["before 7am on monday"],
+    "labels": ["automerge"]
   },
   "packageRules": [
     {
       "description": "Group Docker updates",
       "matchManagers": ["dockerfile"],
       "groupName": "docker",
-      "pinDigests": true
+      "pinDigests": true,
+      "matchUpdateTypes": ["patch", "minor"],
+      "labels": ["automerge"]
     },
     {
       "description": "Group GitHub Actions",
       "matchManagers": ["github-actions"],
-      "groupName": "github-actions"
+      "groupName": "github-actions",
+      "matchUpdateTypes": ["patch", "minor"],
+      "labels": ["automerge"]
     },
     {
       "description": "Group Node.js updates",
       "matchDepNames": ["node"],
-      "groupName": "node"
+      "groupName": "node",
+      "matchUpdateTypes": ["patch", "minor"],
+      "labels": ["automerge"]
+    },
+    {
+      "description": "pnpm packageManager: automerge patches and minors after 7 days",
+      "matchDepTypes": ["packageManager"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "labels": ["automerge"]
     },
     {
       "description": "Group Next.js and React ecosystem (App Router strict compatibility)",
