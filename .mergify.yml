@@ -23,7 +23,7 @@ priority_rules:
     priority: high
 
 pull_request_rules:
-  # Security PRs: automerge immediately with high priority (no batch wait)
+  # Security PRs: high priority - processed before regular PRs in the queue
   - name: Queue Renovate security PRs with high priority
     conditions:
       - author = renovate[bot]
