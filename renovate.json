@@ -31,14 +31,14 @@
       "matchManagers": ["dockerfile"],
       "groupName": "docker",
       "pinDigests": true,
-      "matchUpdateTypes": ["patch", "minor"],
+      "matchUpdateTypes": ["patch", "minor", "pin", "digest", "pinDigest"],
       "labels": ["automerge"]
     },
     {
       "description": "Group GitHub Actions",
       "matchManagers": ["github-actions"],
       "groupName": "github-actions",
-      "matchUpdateTypes": ["patch", "minor"],
+      "matchUpdateTypes": ["patch", "minor", "pin", "digest", "pinDigest"],
       "labels": ["automerge"]
     },
     {
