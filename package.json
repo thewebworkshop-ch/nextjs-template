@@ -110,7 +110,8 @@
   },
   "pnpm": {
     "overrides": {
-      "hono": ">=4.11.7",
+      "hono": ">=4.12.5",
+      "@hono/node-server": ">=1.19.10",
       "lodash": ">=4.17.23",
       "@playwright/test": "^1.58.0",
       "minimatch@^10.0.0": ">=10.2.1",
