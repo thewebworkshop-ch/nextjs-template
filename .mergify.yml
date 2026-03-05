@@ -6,7 +6,27 @@ queue_rules:
     batch_size: 5
     # Wait up to 30 minutes to fill the batch before running CI
     batch_max_wait_time: 30 min
+    # Automatically queue PRs as soon as all conditions are met (no webhook dependency)
+    autoqueue: true
+    # Entry conditions: individual PR CI must pass before entering the queue
     queue_conditions:
+      - author = renovate[bot]
+      - label = automerge
+      - check-success=Gitleaks - Secret Scanning
+      - check-success=Prettier - Format Check
+      - check-success=ESLint - Lint Code
+      - check-success=TypeScript Compiler - Type Check
+      - check-success=Vitest - Unit Tests
+      - check-success=Vitest - Storybook Tests
+      - check-success=Docker Build & E2E Tests
+      - check-success=Semgrep - SAST & SCA
+      - check-success=Trivy - Vulnerability Scan
+      - check-success=Trivy - License Scan
+      - check-success=Trivy - Config Scan
+      - check-success=Trivy - CIS Docker Benchmark
+      - check-success=Merge Confidence Check for Renovate PRs
+    # Merge conditions: batch CI (run on speculative merge commit) must pass before merging
+    merge_conditions:
       - check-success=Gitleaks - Secret Scanning
       - check-success=Prettier - Format Check
       - check-success=ESLint - Lint Code
@@ -26,50 +46,3 @@ priority_rules:
     conditions:
       - label = security
     priority: high
-
-pull_request_rules:
-  # Security PRs: high priority - processed before regular PRs in the queue
-  - name: Queue Renovate security PRs with high priority
-    conditions:
-      - author = renovate[bot]
-      - label = automerge
-      - label = security
-      - check-success=Gitleaks - Secret Scanning
-      - check-success=Prettier - Format Check
-      - check-success=ESLint - Lint Code
-      - check-success=TypeScript Compiler - Type Check
-      - check-success=Vitest - Unit Tests
-      - check-success=Vitest - Storybook Tests
-      - check-success=Docker Build & E2E Tests
-      - check-success=Semgrep - SAST & SCA
-      - check-success=Trivy - Vulnerability Scan
-      - check-success=Trivy - License Scan
-      - check-success=Trivy - Config Scan
-      - check-success=Trivy - CIS Docker Benchmark
-      - check-success=Merge Confidence Check for Renovate PRs
-    actions:
-      queue:
-        name: default
-
-  # Regular Renovate PRs: batch and automerge
-  - name: Queue Renovate automerge PRs
-    conditions:
-      - author = renovate[bot]
-      - label = automerge
-      - -label = security
-      - check-success=Gitleaks - Secret Scanning
-      - check-success=Prettier - Format Check
-      - check-success=ESLint - Lint Code
-      - check-success=TypeScript Compiler - Type Check
-      - check-success=Vitest - Unit Tests
-      - check-success=Vitest - Storybook Tests
-      - check-success=Docker Build & E2E Tests
-      - check-success=Semgrep - SAST & SCA
-      - check-success=Trivy - Vulnerability Scan
-      - check-success=Trivy - License Scan
-      - check-success=Trivy - Config Scan
-      - check-success=Trivy - CIS Docker Benchmark
-      - check-success=Merge Confidence Check for Renovate PRs
-    actions:
-      queue:
-        name: default

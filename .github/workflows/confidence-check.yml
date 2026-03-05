@@ -121,14 +121,17 @@ jobs:
                   signal: AbortSignal.timeout(10000)
                 });
                 const svgContent = await response.text();
-                // SVG badge contains the confidence level in <text> elements
-                const textMatches = [...svgContent.matchAll(/<text[^>]*>([^<]+)<\/text>/gi)];
-                for (const m of textMatches) {
-                  const txt = m[1].toLowerCase().trim();
-                  if (levels[txt] !== undefined) {
-                    confidence = { level: levels[txt], name: txt };
-                    break;
-                  }
+                // Search for confidence level keywords directly in the SVG content
+                // (more robust than parsing specific SVG elements like <text> or <tspan>)
+                const svgLower = svgContent.toLowerCase();
+                if (svgLower.includes('very high')) {
+                  confidence = { level: 4, name: 'very high' };
+                } else if (svgLower.includes('high')) {
+                  confidence = { level: 3, name: 'high' };
+                } else if (svgLower.includes('neutral')) {
+                  confidence = { level: 2, name: 'neutral' };
+                } else if (svgLower.includes('low')) {
+                  confidence = { level: 1, name: 'low' };
                 }
                 console.log('SVG confidence level:', confidence.name, `(level ${confidence.level})`);
               } catch (err) {
