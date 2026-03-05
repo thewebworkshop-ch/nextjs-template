@@ -104,7 +104,6 @@
     {
       "description": "Major updates: require dashboard approval (14-day delay for community vetting)",
       "matchUpdateTypes": ["major"],
-      "automerge": false,
       "dependencyDashboardApproval": true,
       "minimumReleaseAge": "14 days"
     },
@@ -112,7 +111,6 @@
       "description": "Production minor: require dashboard approval (7-day delay for badge stabilization)",
       "matchDepTypes": ["dependencies"],
       "matchUpdateTypes": ["minor"],
-      "automerge": false,
       "dependencyDashboardApproval": true,
       "minimumReleaseAge": "7 days"
     },
