@@ -5,10 +5,6 @@ on:
     types: [opened, edited, synchronize]
     branches: [main]
 
-concurrency:
-  group: confidence-check-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: true
-
 jobs:
   check-confidence:
     name: Merge Confidence Check for Renovate PRs
@@ -159,6 +155,10 @@ jobs:
               if (hasHighConfidence) {
                 console.log('✅ Merge Confidence >= High - PASS');
                 return;
+              } else if (confidence.name === 'unknown') {
+                // Badge URL detected but no confidence level in alt text (Mend has no data yet)
+                // Fall through to no-badges logic
+                console.log('⚠️ Badge detected but confidence data unavailable - falling back to no-badges logic');
               } else {
                 core.setFailed(`❌ Merge Confidence "${confidence.name}" is below High - waiting for confidence to improve`);
                 return;
