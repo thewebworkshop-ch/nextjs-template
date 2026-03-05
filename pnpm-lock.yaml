@@ -5,7 +5,8 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  hono: '>=4.11.7'
+  hono: '>=4.12.5'
+  '@hono/node-server': '>=1.19.10'
   lodash: '>=4.17.23'
   '@playwright/test': ^1.58.0
   minimatch@^10.0.0: '>=10.2.1'
@@ -669,11 +670,11 @@ packages:
       '@noble/hashes':
         optional: true
 
-  '@hono/node-server@1.19.9':
-    resolution: {integrity: sha512-vHL6w3ecZsky+8P5MD+eFfaGTyCeOHUIFYMGpQGbrBTSmNNoxv0if69rEZ5giu36weC5saFuznL411gRX7bJDw==}
+  '@hono/node-server@1.19.11':
+    resolution: {integrity: sha512-dr8/3zEaB+p0D2n/IUrlPF1HZm586qgJNXK1a9fhg/PzdtkK7Ksd5l312tJX2yBuALqDYBlG20QEbayqPyxn+g==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
-      hono: '>=4.11.7'
+      hono: '>=4.12.5'
 
   '@hookform/resolvers@5.2.2':
     resolution: {integrity: sha512-A/IxlMLShx3KjV/HeTcTfaMxdwy690+L/ZADoeaTltLx+CVuzkeVIPuybK3jrRfw7YZnmdKsVVHAlEPIAEUNlA==}
@@ -5047,7 +5048,7 @@ snapshots:
 
   '@exodus/bytes@1.14.1': {}
 
-  '@hono/node-server@1.19.9(hono@4.12.5)':
+  '@hono/node-server@1.19.11(hono@4.12.5)':
     dependencies:
       hono: 4.12.5
 
@@ -5361,7 +5362,7 @@ snapshots:
       '@electric-sql/pglite': 0.3.15
       '@electric-sql/pglite-socket': 0.0.20(@electric-sql/pglite@0.3.15)
       '@electric-sql/pglite-tools': 0.2.20(@electric-sql/pglite@0.3.15)
-      '@hono/node-server': 1.19.9(hono@4.12.5)
+      '@hono/node-server': 1.19.11(hono@4.12.5)
       '@mrleebo/prisma-ast': 0.13.1
       '@prisma/get-platform': 7.2.0
       '@prisma/query-plan-executor': 7.2.0
