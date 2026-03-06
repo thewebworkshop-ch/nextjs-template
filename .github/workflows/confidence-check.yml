@@ -68,32 +68,48 @@ jobs:
             let hasApiError = false;
 
             for (const rawBadgeUrl of confidenceBadgeUrls) {
-              // Convert badge URL to data API URL: /api/mc/badges/confidence/ → /api/mc/confidence/
-              // The badge endpoint only returns PNG-embedded SVG (not parseable)
-              // The data endpoint returns JSON with the actual confidence level
-              const dataUrl = rawBadgeUrl.split('?')[0].replace('/api/mc/badges/confidence/', '/api/mc/confidence/');
-              const shortUrl = dataUrl.split('/').slice(-2).join('/');
+              // Try two endpoints:
+              // 1. /api/mc/lookup/ — Renovate's internal data endpoint (returns JSON)
+              // 2. /api/mc/badges/confidence/ — badge renderer (fallback, with browser UA to get text SVG)
+              const baseUrl = rawBadgeUrl.split('?')[0];
+              const lookupUrl = baseUrl.replace('/api/mc/badges/confidence/', '/api/mc/lookup/');
+              const shortUrl = baseUrl.split('/').slice(-2).join('/');
               console.log(`  [DEBUG] Raw badge URL: ${rawBadgeUrl}`);
-              console.log(`  [DEBUG] Data API URL: ${dataUrl}`);
+              console.log(`  [DEBUG] Lookup URL: ${lookupUrl}`);
               try {
-                const response = await fetch(dataUrl, {
+                // Attempt 1: data lookup endpoint
+                let response = await fetch(lookupUrl, {
                   headers: { 'Accept': 'application/json' },
                   signal: AbortSignal.timeout(10000)
                 });
-                console.log(`  [DEBUG] HTTP status: ${response.status}`);
-                console.log(`  [DEBUG] Content-Type: ${response.headers.get('content-type')}`);
+                console.log(`  [DEBUG] Lookup HTTP status: ${response.status}`);
+                console.log(`  [DEBUG] Lookup Content-Type: ${response.headers.get('content-type')}`);
+
+                // Attempt 2: badge endpoint with browser User-Agent if lookup failed
                 if (!response.ok) {
-                  core.warning(`${shortUrl}: HTTP ${response.status}`);
+                  console.log(`  [DEBUG] Lookup failed, trying badge endpoint with browser UA`);
+                  response = await fetch(baseUrl, {
+                    headers: {
+                      'Accept': 'image/svg+xml, */*',
+                      'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                    },
+                    signal: AbortSignal.timeout(10000)
+                  });
+                  console.log(`  [DEBUG] Badge (browser UA) HTTP status: ${response.status}`);
+                  console.log(`  [DEBUG] Badge (browser UA) Content-Type: ${response.headers.get('content-type')}`);
+                }
+
+                if (!response.ok) {
+                  core.warning(`${shortUrl}: HTTP ${response.status} on both endpoints`);
                   hasApiError = true;
                   continue;
                 }
                 const body = await response.text();
-                console.log(`  [DEBUG] Response body: ${body.substring(0, 500)}`);
+                console.log(`  [DEBUG] Response body (first 500): ${body.substring(0, 500)}`);
                 let levelName = null;
                 try {
                   const json = JSON.parse(body);
                   console.log(`  [DEBUG] JSON parsed:`, JSON.stringify(json).substring(0, 200));
-                  // Try common JSON shapes: {message}, {confidence}, {level}, {mergeConfidence}
                   const msg = (json.message || json.confidence || json.level || json.mergeConfidence || '').toLowerCase().trim();
                   console.log(`  [DEBUG] Extracted msg: "${msg}"`);
                   if (msg === 'very high') levelName = 'very high';
@@ -101,7 +117,14 @@ jobs:
                   else if (msg === 'neutral') levelName = 'neutral';
                   else if (msg === 'low') levelName = 'low';
                 } catch (e) {
-                  console.log(`  [DEBUG] Not JSON: ${body.substring(0, 300)}`);
+                  // Not JSON - try SVG text stripping
+                  console.log(`  [DEBUG] Not JSON, trying SVG text strip`);
+                  const svgText = body.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').toLowerCase().trim();
+                  console.log(`  [DEBUG] SVG stripped: ${svgText.substring(0, 200)}`);
+                  if (/\bvery high\b/.test(svgText)) levelName = 'very high';
+                  else if (/\bhigh\b/.test(svgText)) levelName = 'high';
+                  else if (/\bneutral\b/.test(svgText)) levelName = 'neutral';
+                  else if (/\blow\b/.test(svgText)) levelName = 'low';
                 }
 
                 if (levelName) {
