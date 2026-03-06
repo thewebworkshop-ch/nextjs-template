@@ -105,7 +105,9 @@ jobs:
                   continue;
                 }
                 const body = await response.text();
+                console.log(`  [DEBUG] Response body length: ${body.length}`);
                 console.log(`  [DEBUG] Response body (first 500): ${body.substring(0, 500)}`);
+                console.log(`  [DEBUG] Response body (last 500): ${body.substring(Math.max(0, body.length - 500))}`);
                 let levelName = null;
                 try {
                   const json = JSON.parse(body);
