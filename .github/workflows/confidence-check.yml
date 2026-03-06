@@ -68,35 +68,38 @@ jobs:
             let hasApiError = false;
 
             for (const rawBadgeUrl of confidenceBadgeUrls) {
-              // Strip query params - ?slim=true produces a PNG-embedded SVG with no text content
+              // Strip query params and use base URL only
               const badgeUrl = rawBadgeUrl.split('?')[0];
               const shortUrl = badgeUrl.split('/').slice(-2).join('/');
-              console.log(`  [DEBUG] URL after strip: ${badgeUrl}`);
+              console.log(`  [DEBUG] Badge URL: ${badgeUrl}`);
               try {
+                // Mend badge endpoints are Shields.io-compatible: request JSON to get machine-readable data
+                // SVG responses embed confidence as a PNG image (not parseable as text)
                 const response = await fetch(badgeUrl, {
-                  headers: { 'Accept': 'image/svg+xml, */*' },
+                  headers: { 'Accept': 'application/json' },
                   signal: AbortSignal.timeout(10000)
                 });
                 console.log(`  [DEBUG] HTTP status: ${response.status}`);
                 console.log(`  [DEBUG] Content-Type: ${response.headers.get('content-type')}`);
-                console.log(`  [DEBUG] Final URL (after redirects): ${response.url}`);
                 if (!response.ok) {
                   core.warning(`${shortUrl}: HTTP ${response.status}`);
                   hasApiError = true;
                   continue;
                 }
-                const svgContent = await response.text();
-                console.log(`  [DEBUG] SVG length: ${svgContent.length}`);
-                console.log(`  [DEBUG] SVG raw (first 500): ${svgContent.substring(0, 500)}`);
-                // Strip all XML/SVG tags and search in plain text content
-                // This handles any SVG structure: <text>, <tspan>, <title>, nested elements, etc.
-                const svgText = svgContent.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').toLowerCase().trim();
-                console.log(`  [DEBUG] SVG stripped (full): ${svgText}`);
+                const body = await response.text();
+                console.log(`  [DEBUG] Response body: ${body.substring(0, 300)}`);
                 let levelName = null;
-                if (/\bvery high\b/.test(svgText)) levelName = 'very high';
-                else if (/\bhigh\b/.test(svgText)) levelName = 'high';
-                else if (/\bneutral\b/.test(svgText)) levelName = 'neutral';
-                else if (/\blow\b/.test(svgText)) levelName = 'low';
+                try {
+                  const json = JSON.parse(body);
+                  console.log(`  [DEBUG] JSON message: ${json.message}`);
+                  const msg = (json.message || '').toLowerCase().trim();
+                  if (msg === 'very high') levelName = 'very high';
+                  else if (msg === 'high') levelName = 'high';
+                  else if (msg === 'neutral') levelName = 'neutral';
+                  else if (msg === 'low') levelName = 'low';
+                } catch (e) {
+                  console.log(`  [DEBUG] Not JSON, response: ${body.substring(0, 200)}`);
+                }
 
                 if (levelName) {
                   allUnknown = false;
@@ -106,7 +109,7 @@ jobs:
                     lowestConfidence = { level: levelNum, name: levelName };
                   }
                 } else {
-                  console.log(`  → ${shortUrl}: unknown (no data in SVG)`);
+                  console.log(`  → ${shortUrl}: unknown (no confidence data in response)`);
                 }
               } catch (err) {
                 core.warning(`${shortUrl}: fetch failed - ${err.message}`);
