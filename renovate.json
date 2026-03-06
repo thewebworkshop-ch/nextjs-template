@@ -128,12 +128,6 @@
       "labels": ["automerge"]
     },
     {
-      "description": "Hold back low/neutral confidence updates for manual review via dashboard",
-      "matchConfidence": ["low", "neutral"],
-      "dependencyDashboardApproval": true,
-      "labels": ["dependencies"]
-    },
-    {
       "description": "Show both Merge Confidence and OpenSSF Scorecard badges",
       "matchSourceUrls": ["https://github.com/**"],
       "prBodyColumns": [
