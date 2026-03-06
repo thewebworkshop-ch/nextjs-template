@@ -6,7 +6,7 @@ on:
 
 jobs:
   format:
-    name: Format Renovate PR
+    name: Format Renovate PRs
     if: github.actor == 'renovate[bot]'
     runs-on: ubuntu-latest
     permissions:
