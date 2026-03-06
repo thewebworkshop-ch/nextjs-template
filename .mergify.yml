@@ -24,6 +24,7 @@ queue_rules:
       - check-success=Trivy - License Scan
       - check-success=Trivy - Config Scan
       - check-success=Trivy - CIS Docker Benchmark
+      - check-success=Merge Confidence Check for Renovate PRs
     # Merge conditions: batch CI (run on speculative merge commit) must pass before merging
     merge_conditions:
       - check-success=Gitleaks - Secret Scanning
