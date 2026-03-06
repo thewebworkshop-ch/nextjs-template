@@ -46,52 +46,6 @@ jobs:
               return;
             }
 
-            // Detect security/vulnerability PRs
-            const isSecurityPR = prTitle.toLowerCase().includes('security') ||
-                                 prTitle.toLowerCase().includes('vulnerability') ||
-                                 prBody.toLowerCase().includes('vulnerability') ||
-                                 prBody.toLowerCase().includes('cve-');
-
-            console.log('Is Security PR:', isSecurityPR);
-
-            // Extract release age from PR body (needed for security PRs without badges)
-            function parseReleaseAge(body) {
-              const agePatterns = [
-                /\|\s*(\d+)\s*(hour|day|week|month|year)s?\s*\|/gi,
-                /age[:\s]+(\d+)\s*(hour|day|week|month|year)s?/gi,
-              ];
-
-              let maxAgeDays = 0;
-
-              for (const pattern of agePatterns) {
-                let match;
-                while ((match = pattern.exec(body)) !== null) {
-                  const value = parseInt(match[1], 10);
-                  const unit = match[2].toLowerCase();
-
-                  let days = 0;
-                  switch (unit) {
-                    case 'hour': days = value / 24; break;
-                    case 'day': days = value; break;
-                    case 'week': days = value * 7; break;
-                    case 'month': days = value * 30; break;
-                    case 'year': days = value * 365; break;
-                  }
-
-                  if (days > maxAgeDays) {
-                    maxAgeDays = days;
-                  }
-                }
-              }
-
-              return maxAgeDays;
-            }
-
-            const releaseAgeDays = parseReleaseAge(prBody);
-            if (isSecurityPR) {
-              console.log('Release age (days):', releaseAgeDays);
-            }
-
             // Extract Merge Confidence from PR body
             // NOTE: Renovate badge alt text is ALWAYS the static word "confidence" (not the level).
             // The actual confidence level is only in the dynamically served SVG image.
@@ -114,20 +68,27 @@ jobs:
 
             for (const badgeUrl of confidenceBadgeUrls) {
               const shortUrl = badgeUrl.split('/').slice(-2).join('/');
+              console.log(`  [DEBUG] Full URL: ${badgeUrl}`);
               try {
                 const response = await fetch(badgeUrl, {
                   headers: { 'Accept': 'image/svg+xml, */*' },
                   signal: AbortSignal.timeout(10000)
                 });
+                console.log(`  [DEBUG] HTTP status: ${response.status}`);
+                console.log(`  [DEBUG] Content-Type: ${response.headers.get('content-type')}`);
+                console.log(`  [DEBUG] Final URL (after redirects): ${response.url}`);
                 if (!response.ok) {
                   core.warning(`${shortUrl}: HTTP ${response.status}`);
                   hasApiError = true;
                   continue;
                 }
                 const svgContent = await response.text();
+                console.log(`  [DEBUG] SVG length: ${svgContent.length}`);
+                console.log(`  [DEBUG] SVG raw (first 500): ${svgContent.substring(0, 500)}`);
                 // Strip all XML/SVG tags and search in plain text content
                 // This handles any SVG structure: <text>, <tspan>, <title>, nested elements, etc.
                 const svgText = svgContent.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').toLowerCase().trim();
+                console.log(`  [DEBUG] SVG stripped (full): ${svgText}`);
                 let levelName = null;
                 if (/\bvery high\b/.test(svgText)) levelName = 'very high';
                 else if (/\bhigh\b/.test(svgText)) levelName = 'high';
@@ -183,18 +144,5 @@ jobs:
               }
             }
 
-            // Rule 2: No badges - different handling for security vs regular PRs
-            if (isSecurityPR) {
-              // Security PRs without badges: wait 3 days for badges to appear
-              const securityWaitDays = 3;
-              if (releaseAgeDays >= securityWaitDays) {
-                core.notice(`Security PR: No badges but release is >= ${securityWaitDays} days old - PASS`);
-                return;
-              } else {
-                core.setFailed(`Security PR: No badges and release is only ${releaseAgeDays.toFixed(1)} days old - waiting ${securityWaitDays} days for community vetting`);
-                return;
-              }
-            }
-
-            // Regular PRs without badges - pass (Renovate's minimumReleaseAge already ensured sufficient wait)
+            // No badges - pass (Renovate's minimumReleaseAge already ensured sufficient wait)
             core.notice('No Merge Confidence badges - PASS (package not tracked by Mend)');
