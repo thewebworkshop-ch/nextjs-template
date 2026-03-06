@@ -98,7 +98,9 @@ jobs:
             // We fetch ALL badges (one per package in grouped PRs) and take the lowest level.
 
             // Find ALL confidence badge URLs
-            const confidenceBadgePattern = /!\[confidence\]\((https:\/\/developer\.mend\.io\/api\/mc\/badges\/confidence\/[^)]+)\)/gi;
+            // Tolerant pattern: handles both Markdown ![confidence](URL) and HTML <img src="URL">
+            // and any Mend/Renovate domain variant
+            const confidenceBadgePattern = /(https:\/\/[a-zA-Z0-9.-]+\/api\/mc\/badges\/confidence\/[^\s"'>)]+)/gi;
             const confidenceBadgeUrls = [...prBody.matchAll(confidenceBadgePattern)].map(m => m[1]);
 
             console.log('Confidence badges found:', confidenceBadgeUrls.length);
@@ -108,6 +110,7 @@ jobs:
             let lowestConfidence = { level: 99, name: 'unknown' };
             let hasAnyBadge = confidenceBadgeUrls.length > 0;
             let allUnknown = true;
+            let hasApiError = false;
 
             for (const badgeUrl of confidenceBadgeUrls) {
               const shortUrl = badgeUrl.split('/').slice(-2).join('/');
@@ -117,7 +120,8 @@ jobs:
                   signal: AbortSignal.timeout(10000)
                 });
                 if (!response.ok) {
-                  console.log(`  → ${shortUrl}: HTTP ${response.status} - skipping`);
+                  core.warning(`${shortUrl}: HTTP ${response.status}`);
+                  hasApiError = true;
                   continue;
                 }
                 const svgContent = await response.text();
@@ -135,8 +139,16 @@ jobs:
                   console.log(`  → ${shortUrl}: unknown (no data in SVG)`);
                 }
               } catch (err) {
-                console.log(`  → ${shortUrl}: fetch failed - ${err.message}`);
+                core.warning(`${shortUrl}: fetch failed - ${err.message}`);
+                hasApiError = true;
               }
+            }
+
+            // Fail-closed: any fetch error = block immediately
+            // We can't know if the failed badge would have been "low" → must not silently pass
+            if (hasApiError) {
+              core.setFailed('One or more confidence badge fetches failed - blocking to avoid passing with incomplete data.');
+              return;
             }
 
             if (allUnknown) lowestConfidence = { level: 0, name: 'unknown' };
