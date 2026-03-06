@@ -125,11 +125,17 @@ jobs:
                   continue;
                 }
                 const svgContent = await response.text();
-                // Allow optional whitespace around the confidence level text in SVG
-                const svgMatch = svgContent.match(/>\s*(very high|high|neutral|low)\s*</i);
-                if (svgMatch) {
+                // Strip all XML/SVG tags and search in plain text content
+                // This handles any SVG structure: <text>, <tspan>, <title>, nested elements, etc.
+                const svgText = svgContent.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').toLowerCase().trim();
+                let levelName = null;
+                if (/\bvery high\b/.test(svgText)) levelName = 'very high';
+                else if (/\bhigh\b/.test(svgText)) levelName = 'high';
+                else if (/\bneutral\b/.test(svgText)) levelName = 'neutral';
+                else if (/\blow\b/.test(svgText)) levelName = 'low';
+
+                if (levelName) {
                   allUnknown = false;
-                  const levelName = svgMatch[1].trim().toLowerCase();
                   const levelNum = levels[levelName] ?? 0;
                   console.log(`  → ${shortUrl}: ${levelName}`);
                   if (levelNum < lowestConfidence.level) {
