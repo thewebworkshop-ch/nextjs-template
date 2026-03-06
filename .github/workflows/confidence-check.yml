@@ -68,14 +68,15 @@ jobs:
             let hasApiError = false;
 
             for (const rawBadgeUrl of confidenceBadgeUrls) {
-              // Strip query params and use base URL only
-              const badgeUrl = rawBadgeUrl.split('?')[0];
-              const shortUrl = badgeUrl.split('/').slice(-2).join('/');
-              console.log(`  [DEBUG] Badge URL: ${badgeUrl}`);
+              // Convert badge URL to data API URL: /api/mc/badges/confidence/ → /api/mc/confidence/
+              // The badge endpoint only returns PNG-embedded SVG (not parseable)
+              // The data endpoint returns JSON with the actual confidence level
+              const dataUrl = rawBadgeUrl.split('?')[0].replace('/api/mc/badges/confidence/', '/api/mc/confidence/');
+              const shortUrl = dataUrl.split('/').slice(-2).join('/');
+              console.log(`  [DEBUG] Raw badge URL: ${rawBadgeUrl}`);
+              console.log(`  [DEBUG] Data API URL: ${dataUrl}`);
               try {
-                // Mend badge endpoints are Shields.io-compatible: request JSON to get machine-readable data
-                // SVG responses embed confidence as a PNG image (not parseable as text)
-                const response = await fetch(badgeUrl, {
+                const response = await fetch(dataUrl, {
                   headers: { 'Accept': 'application/json' },
                   signal: AbortSignal.timeout(10000)
                 });
@@ -87,18 +88,20 @@ jobs:
                   continue;
                 }
                 const body = await response.text();
-                console.log(`  [DEBUG] Response body: ${body.substring(0, 300)}`);
+                console.log(`  [DEBUG] Response body: ${body.substring(0, 500)}`);
                 let levelName = null;
                 try {
                   const json = JSON.parse(body);
-                  console.log(`  [DEBUG] JSON message: ${json.message}`);
-                  const msg = (json.message || '').toLowerCase().trim();
+                  console.log(`  [DEBUG] JSON parsed:`, JSON.stringify(json).substring(0, 200));
+                  // Try common JSON shapes: {message}, {confidence}, {level}, {mergeConfidence}
+                  const msg = (json.message || json.confidence || json.level || json.mergeConfidence || '').toLowerCase().trim();
+                  console.log(`  [DEBUG] Extracted msg: "${msg}"`);
                   if (msg === 'very high') levelName = 'very high';
                   else if (msg === 'high') levelName = 'high';
                   else if (msg === 'neutral') levelName = 'neutral';
                   else if (msg === 'low') levelName = 'low';
                 } catch (e) {
-                  console.log(`  [DEBUG] Not JSON, response: ${body.substring(0, 200)}`);
+                  console.log(`  [DEBUG] Not JSON: ${body.substring(0, 300)}`);
                 }
 
                 if (levelName) {
