@@ -95,61 +95,72 @@ jobs:
             // Extract Merge Confidence from PR body
             // NOTE: Renovate badge alt text is ALWAYS the static word "confidence" (not the level).
             // The actual confidence level is only in the dynamically served SVG image.
-            // We must fetch the badge SVG to get the real confidence level.
+            // We fetch ALL badges (one per package in grouped PRs) and take the lowest level.
 
-            // Find the confidence badge URL via the static alt text Renovate always uses
-            const confidenceBadgePattern = /!\[confidence\]\((https:\/\/developer\.mend\.io\/api\/mc\/badges\/confidence\/[^)]+)\)/i;
-            const confidenceBadgeMatch = prBody.match(confidenceBadgePattern);
-            const confidenceBadgeUrl = confidenceBadgeMatch ? confidenceBadgeMatch[1] : null;
+            // Find ALL confidence badge URLs
+            const confidenceBadgePattern = /!\[confidence\]\((https:\/\/developer\.mend\.io\/api\/mc\/badges\/confidence\/[^)]+)\)/gi;
+            const confidenceBadgeUrls = [...prBody.matchAll(confidenceBadgePattern)].map(m => m[1]);
 
-            console.log('Confidence badge URL found:', !!confidenceBadgeUrl);
-            if (confidenceBadgeUrl) {
-              console.log('Badge URL:', confidenceBadgeUrl);
-            }
+            console.log('Confidence badges found:', confidenceBadgeUrls.length);
 
-            // Fetch the actual confidence level from the SVG badge
+            // Fetch confidence level for each badge and keep the lowest (most conservative)
             const levels = { 'very high': 4, 'high': 3, 'neutral': 2, 'low': 1 };
-            let confidence = { level: 0, name: 'unknown' };
+            let lowestConfidence = { level: 99, name: 'unknown' };
+            let hasAnyBadge = confidenceBadgeUrls.length > 0;
+            let allUnknown = true;
 
-            if (confidenceBadgeUrl) {
-              console.log('Fetching confidence badge SVG...');
+            for (const badgeUrl of confidenceBadgeUrls) {
+              const shortUrl = badgeUrl.split('/').slice(-2).join('/');
               try {
-                const response = await fetch(confidenceBadgeUrl, {
+                const response = await fetch(badgeUrl, {
                   headers: { 'Accept': 'image/svg+xml, */*' },
                   signal: AbortSignal.timeout(10000)
                 });
-                const svgContent = await response.text();
-                // Parse confidence level from SVG tags (e.g. ">High<", ">Very High<")
-                const svgMatch = svgContent.match(/>(very high|high|neutral|low)</i);
-                if (svgMatch) {
-                  const level = svgMatch[1].toLowerCase();
-                  confidence = { level: levels[level] ?? 0, name: level };
+                if (!response.ok) {
+                  console.log(`  → ${shortUrl}: HTTP ${response.status} - skipping`);
+                  continue;
                 }
-                console.log('SVG confidence level:', confidence.name, `(level ${confidence.level})`);
+                const svgContent = await response.text();
+                // Allow optional whitespace around the confidence level text in SVG
+                const svgMatch = svgContent.match(/>\s*(very high|high|neutral|low)\s*</i);
+                if (svgMatch) {
+                  allUnknown = false;
+                  const levelName = svgMatch[1].trim().toLowerCase();
+                  const levelNum = levels[levelName] ?? 0;
+                  console.log(`  → ${shortUrl}: ${levelName}`);
+                  if (levelNum < lowestConfidence.level) {
+                    lowestConfidence = { level: levelNum, name: levelName };
+                  }
+                } else {
+                  console.log(`  → ${shortUrl}: unknown (no data in SVG)`);
+                }
               } catch (err) {
-                console.log('⚠️ Failed to fetch confidence badge SVG:', err.message);
+                console.log(`  → ${shortUrl}: fetch failed - ${err.message}`);
               }
             }
 
+            if (allUnknown) lowestConfidence = { level: 0, name: 'unknown' };
+
+            const confidence = lowestConfidence;
             const hasHighConfidence = confidence.level >= 3; // High or Very High
 
-            console.log('Confidence:', confidence.name, `(level ${confidence.level})`);
+            console.log('Lowest confidence across all packages:', confidence.name, `(level ${confidence.level})`);
             console.log('Has High+ Confidence:', hasHighConfidence);
 
             console.log('---');
             console.log('Applying rules...');
 
-            // Rule 1: Confidence badge present → require MC >= High
-            if (confidenceBadgeUrl) {
+            // Rule 1: Confidence badge(s) present → require all >= High
+            if (hasAnyBadge) {
               if (hasHighConfidence) {
-                console.log('✅ Merge Confidence >= High - PASS');
+                core.notice(`All packages Merge Confidence >= High (lowest: ${confidence.name}) - PASS`);
                 return;
               } else if (confidence.name === 'unknown') {
-                // Badge found but Mend has no data for this package (e.g. packageManager type)
+                // Badges found but Mend has no data (e.g. packageManager type)
                 // Fall through to no-badges logic
-                console.log('⚠️ Confidence badge found but Mend has no data - falling back to no-badges logic');
+                console.log('Confidence badges found but Mend returned no data - falling back to no-badges logic');
               } else {
-                core.setFailed(`❌ Merge Confidence "${confidence.name}" is below High - waiting for confidence to improve`);
+                core.setFailed(`Merge Confidence "${confidence.name}" is below High - waiting for confidence to improve`);
                 return;
               }
             }
@@ -159,15 +170,13 @@ jobs:
               // Security PRs without badges: wait 3 days for badges to appear
               const securityWaitDays = 3;
               if (releaseAgeDays >= securityWaitDays) {
-                console.log(`✅ Security PR: No badges but release is >= ${securityWaitDays} days old - PASS`);
-                console.log('Community has had time to vet this security fix.');
+                core.notice(`Security PR: No badges but release is >= ${securityWaitDays} days old - PASS`);
                 return;
               } else {
-                core.setFailed(`❌ Security PR: No badges and release is only ${releaseAgeDays.toFixed(1)} days old - waiting ${securityWaitDays} days for community vetting`);
+                core.setFailed(`Security PR: No badges and release is only ${releaseAgeDays.toFixed(1)} days old - waiting ${securityWaitDays} days for community vetting`);
                 return;
               }
             }
 
             // Regular PRs without badges - pass (Renovate's minimumReleaseAge already ensured sufficient wait)
-            console.log('✅ No Merge Confidence badges - PASS (package not tracked by Mend)');
-            console.log('Renovate minimumReleaseAge already provided sufficient delay.');
+            core.notice('No Merge Confidence badges - PASS (package not tracked by Mend)');
