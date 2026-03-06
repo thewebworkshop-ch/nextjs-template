@@ -58,6 +58,7 @@ jobs:
             const confidenceBadgeUrls = [...prBody.matchAll(confidenceBadgePattern)].map(m => m[1]);
 
             console.log('Confidence badges found:', confidenceBadgeUrls.length);
+            confidenceBadgeUrls.forEach((url, i) => console.log(`  [DEBUG] Badge ${i + 1} raw: ${url}`));
 
             // Fetch confidence level for each badge and keep the lowest (most conservative)
             const levels = { 'very high': 4, 'high': 3, 'neutral': 2, 'low': 1 };
@@ -66,9 +67,11 @@ jobs:
             let allUnknown = true;
             let hasApiError = false;
 
-            for (const badgeUrl of confidenceBadgeUrls) {
+            for (const rawBadgeUrl of confidenceBadgeUrls) {
+              // Strip query params - ?slim=true produces a PNG-embedded SVG with no text content
+              const badgeUrl = rawBadgeUrl.split('?')[0];
               const shortUrl = badgeUrl.split('/').slice(-2).join('/');
-              console.log(`  [DEBUG] Full URL: ${badgeUrl}`);
+              console.log(`  [DEBUG] URL after strip: ${badgeUrl}`);
               try {
                 const response = await fetch(badgeUrl, {
                   headers: { 'Accept': 'image/svg+xml, */*' },
