@@ -30,7 +30,7 @@ jobs:
           sudo apt-get install -y trivy
 
       - name: Run Trivy vulnerability scanning on repository
-        uses: aquasecurity/trivy-action@97e0b3872f55f89b95b2f65b3dbab56962816478 # 0.34.2
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
           skip-setup-trivy: true
           scan-type: "fs"
@@ -68,7 +68,7 @@ jobs:
           sudo apt-get install -y trivy
 
       - name: Run Trivy license scanning on repository
-        uses: aquasecurity/trivy-action@97e0b3872f55f89b95b2f65b3dbab56962816478 # 0.34.2
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
           skip-setup-trivy: true
           scan-type: "fs"
@@ -105,7 +105,7 @@ jobs:
           sudo apt-get install -y trivy
 
       - name: Run Trivy misconfiguration scanning
-        uses: aquasecurity/trivy-action@97e0b3872f55f89b95b2f65b3dbab56962816478 # 0.34.2
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
           skip-setup-trivy: true
           scan-type: "config"
@@ -154,7 +154,7 @@ jobs:
           sudo apt-get install -y trivy
 
       - name: Run CIS Docker Benchmark
-        uses: aquasecurity/trivy-action@97e0b3872f55f89b95b2f65b3dbab56962816478 # 0.34.2
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
           skip-setup-trivy: true
           image-ref: "app:scan"
