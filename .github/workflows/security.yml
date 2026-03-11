@@ -2,9 +2,11 @@ name: Security
 
 on:
   push:
-    branches: [main, "mergify/merge-queue/**"]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
   schedule:
     # Run weekly on Monday at 4am UTC (6am Europe/Zurich)
     - cron: "0 4 * * 1"

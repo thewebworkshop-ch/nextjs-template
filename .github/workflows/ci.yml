@@ -5,8 +5,10 @@ on:
     branches-ignore:
       - "renovate/**"
       - "dependabot/**"
+      - "mergify/merge-queue/**"
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   # Security: scan for secrets before any other job

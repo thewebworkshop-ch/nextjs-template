@@ -30,7 +30,7 @@ Production-ready Next.js template
 
 ## Git Hooks
 
-| Hook           | Technology                                |
+| Category       | Technology                                |
 | -------------- | ----------------------------------------- |
 | **Pre-commit** | Gitleaks + lint-staged + TypeScript check |
 | **Commit-msg** | commitlint                                |
