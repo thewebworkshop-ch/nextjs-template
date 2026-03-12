@@ -13,6 +13,7 @@ on:
 
 jobs:
   trivy-vuln:
+    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'
     name: Trivy - Vulnerability Scan
     runs-on: ubuntu-latest
     permissions:
@@ -51,6 +52,7 @@ jobs:
           category: "trivy-vuln-repo"
 
   trivy-license:
+    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'
     name: Trivy - License Scan
     runs-on: ubuntu-latest
     permissions:
@@ -88,6 +90,7 @@ jobs:
           category: "trivy-license-repo"
 
   trivy-config:
+    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'
     name: Trivy - Config Scan
     runs-on: ubuntu-latest
     permissions:
@@ -125,6 +128,7 @@ jobs:
           category: "trivy-config"
 
   trivy-docker-benchmark:
+    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'
     name: Trivy - CIS Docker Benchmark
     runs-on: ubuntu-latest
     permissions:
@@ -189,6 +193,7 @@ jobs:
           echo "✅ All automated CIS Docker checks passed (manual checks skipped)"
 
   semgrep:
+    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'
     name: Semgrep - SAST & SCA
     runs-on: ubuntu-latest
     permissions:

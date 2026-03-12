@@ -5,7 +5,7 @@ on:
     branches-ignore:
       - "renovate/**"
       - "dependabot/**"
-      - "mergify/merge-queue/**"
+      - "mergify/**"
   pull_request:
     branches:
       - main
@@ -13,6 +13,7 @@ on:
 jobs:
   # Security: scan for secrets before any other job
   gitleaks:
+    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'
     name: Gitleaks - Secret Scanning
     runs-on: ubuntu-latest
     steps:
@@ -28,6 +29,7 @@ jobs:
 
   # Fast checks run in parallel after gitleaks passes
   format:
+    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'
     name: Prettier - Format Check
     needs: [gitleaks]
     runs-on: ubuntu-latest
@@ -42,6 +44,7 @@ jobs:
         run: pnpm format:check
 
   lint:
+    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'
     name: ESLint - Lint Code
     needs: [gitleaks]
     runs-on: ubuntu-latest
@@ -52,10 +55,14 @@ jobs:
       - name: Setup Node.js and pnpm
         uses: ./.github/actions/setup-node-pnpm
 
+      - name: Generate Prisma Client
+        run: pnpm exec prisma generate
+
       - name: Run ESLint
         run: pnpm lint
 
   typecheck:
+    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'
     name: TypeScript Compiler - Type Check
     needs: [gitleaks]
     runs-on: ubuntu-latest
@@ -66,10 +73,14 @@ jobs:
       - name: Setup Node.js and pnpm
         uses: ./.github/actions/setup-node-pnpm
 
+      - name: Generate Prisma Client
+        run: pnpm exec prisma generate
+
       - name: Check TypeScript
         run: pnpm exec tsc --noEmit
 
   test-unit:
+    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'
     name: Vitest - Unit Tests
     needs: [gitleaks]
     runs-on: ubuntu-latest
@@ -79,6 +90,9 @@ jobs:
 
       - name: Setup Node.js and pnpm
         uses: ./.github/actions/setup-node-pnpm
+
+      - name: Generate Prisma Client
+        run: pnpm exec prisma generate
 
       - name: Run unit tests with coverage
         run: pnpm test:unit:coverage
@@ -92,6 +106,7 @@ jobs:
           vite-config-path: ./vitest.config.ts
 
   test-storybook:
+    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'
     name: Vitest - Storybook Tests
     needs: [gitleaks]
     runs-on: ubuntu-latest
@@ -101,6 +116,9 @@ jobs:
 
       - name: Setup Node.js and pnpm
         uses: ./.github/actions/setup-node-pnpm
+
+      - name: Generate Prisma Client
+        run: pnpm exec prisma generate
 
       - name: Get Playwright version
         id: playwright-version
