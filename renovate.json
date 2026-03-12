@@ -27,11 +27,6 @@
   },
   "packageRules": [
     {
-      "description": "Digest updates: no minimumReleaseAge (no semver release date to check)",
-      "matchUpdateTypes": ["digest", "pinDigest"],
-      "minimumReleaseAge": null
-    },
-    {
       "description": "Group Docker updates",
       "matchManagers": ["dockerfile"],
       "groupName": "docker",
