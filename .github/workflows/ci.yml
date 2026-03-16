@@ -6,6 +6,7 @@ on:
       - "renovate/**"
       - "dependabot/**"
       - "mergify/**"
+      - "tmp-mergify/**"
   pull_request:
     branches:
       - main
