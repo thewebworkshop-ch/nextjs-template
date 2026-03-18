@@ -1,0 +1,43 @@
+merge_rules:
+  labels:
+    trigger: "merge-queue"
+
+  preconditions:
+    number_of_approvals: 0
+    use_github_mergeability: false
+    required_checks:
+      - "Format Renovate PRs"
+
+  merge_strategy:
+    name: "squash"
+
+  merge_mode:
+    type: "parallel"
+    parallel_mode:
+      batch_size: 5
+      batch_max_wait_minutes: 5
+      max_parallel_builds: 5
+      max_requeue_attempts: 0
+      override_required_checks:
+        - "Prettier - Format Check"
+        - "ESLint - Lint Code"
+        - "TypeScript Compiler - Type Check"
+        - "Docker Build & E2E Tests"
+        - "Semgrep - SAST & SCA"
+        - "Semgrep PRO"
+        - "Trivy"
+        - "Trivy - Vulnerability Scan"
+        - "Trivy - License Scan"
+        - "Trivy - Config Scan"
+        - "Trivy - CIS Docker Benchmark"
+
+scenarios:
+  - name: "Priority for security PRs"
+    trigger:
+      pull_request:
+        labeled:
+          label: "security"
+    actions:
+      - mergequeue:
+          queue:
+            priority: high
