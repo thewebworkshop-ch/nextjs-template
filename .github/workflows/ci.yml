@@ -87,7 +87,7 @@ jobs:
 
   test-storybook:
     if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && !(github.actor == 'aviator-app[bot]' && startsWith(github.head_ref, 'renovate/'))
-    name: Vitest - Storybook Tests
+    name: Storybook - Component Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
