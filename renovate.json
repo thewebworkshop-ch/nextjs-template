@@ -16,14 +16,14 @@
   "automerge": false,
   "vulnerabilityAlerts": {
     "enabled": true,
-    "labels": ["security", "automerge"],
+    "labels": ["security", "merge-queue"],
     "schedule": ["at any time"],
     "minimumReleaseAge": "0 days"
   },
   "lockFileMaintenance": {
     "enabled": true,
     "schedule": ["before 7am on monday"],
-    "labels": ["automerge"]
+    "labels": ["merge-queue"]
   },
   "packageRules": [
     {
@@ -37,27 +37,27 @@
       "groupName": "docker",
       "pinDigests": true,
       "matchUpdateTypes": ["patch", "minor", "pin", "digest", "pinDigest"],
-      "labels": ["automerge"]
+      "labels": ["merge-queue"]
     },
     {
       "description": "Group GitHub Actions",
       "matchManagers": ["github-actions"],
       "groupName": "github-actions",
       "matchUpdateTypes": ["patch", "minor", "pin", "digest", "pinDigest"],
-      "labels": ["automerge"]
+      "labels": ["merge-queue"]
     },
     {
       "description": "Group Node.js updates",
       "matchDepNames": ["node"],
       "groupName": "node",
       "matchUpdateTypes": ["patch", "minor"],
-      "labels": ["automerge"]
+      "labels": ["merge-queue"]
     },
     {
       "description": "pnpm packageManager: automerge patches and minors after 7 days",
       "matchDepTypes": ["packageManager"],
       "matchUpdateTypes": ["patch", "minor"],
-      "labels": ["automerge"]
+      "labels": ["merge-queue"]
     },
     {
       "description": "Group Next.js and React ecosystem (App Router strict compatibility)",
@@ -120,17 +120,17 @@
       "minimumReleaseAge": "7 days"
     },
     {
-      "description": "Dev dependencies minor/patch: automerge via Mergify",
+      "description": "Dev dependencies minor/patch: automerge via Aviator",
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["patch", "minor"],
-      "labels": ["automerge"]
+      "labels": ["merge-queue"]
     },
     {
-      "description": "Production deps: patch after 14 days, automerge via Mergify",
+      "description": "Production deps: patch after 14 days, automerge via Aviator",
       "matchDepTypes": ["dependencies"],
       "matchUpdateTypes": ["patch"],
       "minimumReleaseAge": "14 days",
-      "labels": ["automerge"]
+      "labels": ["merge-queue"]
     },
     {
       "description": "Show both Merge Confidence and OpenSSF Scorecard badges",

@@ -5,8 +5,7 @@ on:
     branches-ignore:
       - "renovate/**"
       - "dependabot/**"
-      - "mergify/**"
-      - "tmp-mergify/**"
+      - "mq-tmp-**"
   pull_request:
     branches:
       - main
@@ -14,7 +13,7 @@ on:
 jobs:
   # Security: scan for secrets before any other job
   gitleaks:
-    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'
+    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && !(github.actor == 'aviator-app[bot]' && startsWith(github.head_ref, 'renovate/'))
     name: Gitleaks - Secret Scanning
     runs-on: ubuntu-latest
     steps:
@@ -30,7 +29,7 @@ jobs:
 
   # Fast checks run in parallel after gitleaks passes
   format:
-    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'
+    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && !(github.actor == 'aviator-app[bot]' && startsWith(github.head_ref, 'renovate/'))
     name: Prettier - Format Check
     needs: [gitleaks]
     runs-on: ubuntu-latest
@@ -45,7 +44,7 @@ jobs:
         run: pnpm format:check
 
   lint:
-    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'
+    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && !(github.actor == 'aviator-app[bot]' && startsWith(github.head_ref, 'renovate/'))
     name: ESLint - Lint Code
     needs: [gitleaks]
     runs-on: ubuntu-latest
@@ -63,7 +62,7 @@ jobs:
         run: pnpm lint
 
   typecheck:
-    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'
+    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && !(github.actor == 'aviator-app[bot]' && startsWith(github.head_ref, 'renovate/'))
     name: TypeScript Compiler - Type Check
     needs: [gitleaks]
     runs-on: ubuntu-latest
@@ -81,7 +80,7 @@ jobs:
         run: pnpm exec tsc --noEmit
 
   test-unit:
-    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'
+    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && !(github.actor == 'aviator-app[bot]' && startsWith(github.head_ref, 'renovate/'))
     name: Vitest - Unit Tests
     needs: [gitleaks]
     runs-on: ubuntu-latest
@@ -107,7 +106,7 @@ jobs:
           vite-config-path: ./vitest.config.ts
 
   test-storybook:
-    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'
+    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && !(github.actor == 'aviator-app[bot]' && startsWith(github.head_ref, 'renovate/'))
     name: Vitest - Storybook Tests
     needs: [gitleaks]
     runs-on: ubuntu-latest

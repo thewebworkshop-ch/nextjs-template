@@ -38,17 +38,17 @@ Production-ready Next.js template
 
 ## Security & CI/CD
 
-| Category               | Technology                 |
-| ---------------------- | -------------------------- |
-| **CI/CD**              | GitHub Actions             |
-| **Secret Scanning**    | Gitleaks                   |
-| **SCA**                | Trivy + Semgrep            |
-| **License Compliance** | Trivy                      |
-| **CIS Docker**         | Trivy                      |
-| **IaC Scanning**       | Trivy                      |
-| **SAST**               | Semgrep                    |
-| **Dependency Updates** | Renovate + Mergify         |
-| **Security Headers**   | CSP, HSTS, X-Frame-Options |
+| Category               | Technology                          |
+| ---------------------- | ----------------------------------- |
+| **CI/CD**              | GitHub Actions                      |
+| **Secret Scanning**    | Gitleaks + GitHub Secret Protection |
+| **SCA**                | Trivy + Semgrep                     |
+| **License Compliance** | Trivy                               |
+| **CIS Docker**         | Trivy                               |
+| **IaC Scanning**       | Trivy                               |
+| **SAST**               | Semgrep                             |
+| **Dependency Updates** | Renovate + Aviator                  |
+| **Security Headers**   | CSP, HSTS, X-Frame-Options          |
 
 <br>
 
