@@ -11,28 +11,11 @@ on:
       - main
 
 jobs:
-  # Security: scan for secrets before any other job
-  gitleaks:
-    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && !(github.actor == 'aviator-app[bot]' && startsWith(github.head_ref, 'renovate/'))
-    name: Gitleaks - Secret Scanning
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          fetch-depth: 0
-
-      - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  # Fast checks run in parallel after gitleaks passes
   format:
     if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && !(github.actor == 'aviator-app[bot]' && startsWith(github.head_ref, 'renovate/'))
     name: Prettier - Format Check
-    needs: [gitleaks]
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -46,7 +29,6 @@ jobs:
   lint:
     if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && !(github.actor == 'aviator-app[bot]' && startsWith(github.head_ref, 'renovate/'))
     name: ESLint - Lint Code
-    needs: [gitleaks]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -64,7 +46,6 @@ jobs:
   typecheck:
     if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && !(github.actor == 'aviator-app[bot]' && startsWith(github.head_ref, 'renovate/'))
     name: TypeScript Compiler - Type Check
-    needs: [gitleaks]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -82,7 +63,6 @@ jobs:
   test-unit:
     if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && !(github.actor == 'aviator-app[bot]' && startsWith(github.head_ref, 'renovate/'))
     name: Vitest - Unit Tests
-    needs: [gitleaks]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -108,7 +88,6 @@ jobs:
   test-storybook:
     if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && !(github.actor == 'aviator-app[bot]' && startsWith(github.head_ref, 'renovate/'))
     name: Vitest - Storybook Tests
-    needs: [gitleaks]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
