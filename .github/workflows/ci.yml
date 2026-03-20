@@ -12,7 +12,7 @@ on:
 
 jobs:
   format:
-    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && !(github.actor == 'aviator-app[bot]' && startsWith(github.head_ref, 'renovate/'))
+    if: "github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'"
     name: Prettier - Format Check
     runs-on: ubuntu-latest
 
@@ -27,7 +27,7 @@ jobs:
         run: pnpm format:check
 
   lint:
-    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && !(github.actor == 'aviator-app[bot]' && startsWith(github.head_ref, 'renovate/'))
+    if: "github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'"
     name: ESLint - Lint Code
     runs-on: ubuntu-latest
     steps:
@@ -44,7 +44,7 @@ jobs:
         run: pnpm lint
 
   typecheck:
-    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && !(github.actor == 'aviator-app[bot]' && startsWith(github.head_ref, 'renovate/'))
+    if: "github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'"
     name: TypeScript Compiler - Type Check
     runs-on: ubuntu-latest
     steps:
@@ -61,7 +61,7 @@ jobs:
         run: pnpm exec tsc --noEmit
 
   test-unit:
-    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && !(github.actor == 'aviator-app[bot]' && startsWith(github.head_ref, 'renovate/'))
+    if: "github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'"
     name: Vitest - Unit Tests
     runs-on: ubuntu-latest
     steps:
@@ -86,7 +86,7 @@ jobs:
           vite-config-path: ./vitest.config.ts
 
   test-storybook:
-    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && !(github.actor == 'aviator-app[bot]' && startsWith(github.head_ref, 'renovate/'))
+    if: "github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'"
     name: Storybook - Component Tests
     runs-on: ubuntu-latest
     steps:
