@@ -15,6 +15,7 @@ jobs:
     if: "github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'"
     name: Prettier - Format Check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -30,6 +31,7 @@ jobs:
     if: "github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'"
     name: ESLint - Lint Code
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -47,6 +49,7 @@ jobs:
     if: "github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'"
     name: TypeScript Compiler - Type Check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -64,6 +67,7 @@ jobs:
     if: "github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'"
     name: Vitest - Unit Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -89,6 +93,7 @@ jobs:
     if: "github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'"
     name: Storybook - Component Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2

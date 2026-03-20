@@ -16,7 +16,7 @@ services:
       start_period: 5s
 
   e2e-app:
-    image: the-grey-room:latest
+    image: app:latest
     container_name: e2e-container
     ports:
       - "3000:3000"
