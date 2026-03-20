@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-e2e:
-    if: github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && !(github.actor == 'aviator-app[bot]' && startsWith(github.head_ref, 'renovate/'))
+    if: "github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]'"
     name: Docker Build & E2E Tests
     runs-on: ubuntu-latest
     steps:
