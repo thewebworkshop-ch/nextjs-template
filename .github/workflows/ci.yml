@@ -5,7 +5,7 @@ on:
     branches-ignore:
       - "renovate/**"
       - "dependabot/**"
-      - "mq-tmp-**"
+      - "mq-**"
   pull_request:
     branches:
       - main
