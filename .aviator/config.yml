@@ -18,15 +18,44 @@ merge_rules:
       batch_size: 1
       max_parallel_builds: 1
       max_requeue_attempts: 0
+      skip_draft_when_up_to_date: false
       override_required_checks:
-        - "Prettier - Format Check"
-        - "ESLint - Lint Code"
-        - "TypeScript Compiler - Type Check"
-        - "Docker Build & E2E Tests"
-        - "Semgrep - SAST & SCA"
-        - "Trivy - Vulnerability Scan"
-        - "Trivy - License Scan"
-        - "Trivy - Config Scan"
-        - "Trivy - CIS Docker Benchmark"
-        - "Vitest - Unit Tests"
-        - "Storybook - Component Tests"
+        - name: "Docker Build & E2E Tests"
+          acceptable_statuses:
+            - success
+        - name: "ESLint - Lint Code"
+          acceptable_statuses:
+            - success
+        - name: "Prettier - Format Check"
+          acceptable_statuses:
+            - success
+        - name: "Semgrep - SAST & SCA"
+          acceptable_statuses:
+            - success
+        - name: "Trivy - CIS Docker Benchmark"
+          acceptable_statuses:
+            - success
+        - name: "Trivy - Config Scan"
+          acceptable_statuses:
+            - success
+        - name: "Trivy - License Scan"
+          acceptable_statuses:
+            - success
+        - name: "Trivy - Vulnerability Scan"
+          acceptable_statuses:
+            - success
+        - name: "TypeScript Compiler - Type Check"
+          acceptable_statuses:
+            - success
+        - name: "Vitest - Unit Tests"
+          acceptable_statuses:
+            - success
+        - name: "Storybook - Component Tests"
+          acceptable_statuses:
+            - success
+        - name: "Semgrep PRO"
+          acceptable_statuses:
+            - success
+        - name: "Trivy"
+          acceptable_statuses:
+            - success
