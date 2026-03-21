@@ -8,8 +8,8 @@ on:
     branches:
       - main
   schedule:
-    # Run weekly on Monday at 4am UTC (6am Europe/Zurich)
-    - cron: "0 4 * * 1"
+    # Run weekly on Monday at 12pm UTC (1pm/2pm Europe/Zurich)
+    - cron: "0 12 * * 1"
 
 jobs:
   trivy-vuln:
@@ -217,6 +217,9 @@ jobs:
             --sarif-output=semgrep-results.sarif
         env:
           SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+          GITHUB_BASE_REF: ""
+          GITHUB_HEAD_REF: ""
+          GITHUB_EVENT_NAME: "push"
 
       - name: Upload Semgrep results to GitHub Security
         if: always()
