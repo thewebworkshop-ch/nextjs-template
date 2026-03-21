@@ -8,8 +8,8 @@ on:
     branches:
       - main
   schedule:
-    # Run weekly on Monday at 4am UTC (6am Europe/Zurich)
-    - cron: "0 4 * * 1"
+    # Run weekly on Monday at 12pm UTC (1pm/2pm Europe/Zurich)
+    - cron: "0 12 * * 1"
 
 jobs:
   trivy-vuln:
@@ -211,8 +211,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Run Semgrep
+      - name: Run Semgrep Strict Full Scan
         run: |
+          # Create a dummy payload to blind Semgrep's internal parser
+          echo "{}" > dummy_payload.json
+          export GITHUB_EVENT_PATH="$(pwd)/dummy_payload.json"
+
+          # Override PR context variables to simulate a push to main
+          export GITHUB_EVENT_NAME="push"
+          export GITHUB_REF="refs/heads/main"
+          export GITHUB_BASE_REF=""
+          export GITHUB_HEAD_REF=""
+
           semgrep ci \
             --sarif-output=semgrep-results.sarif
         env:
