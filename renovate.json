@@ -7,7 +7,7 @@
     "mergeConfidence:all-badges"
   ],
   "ignoreUnstable": true,
-  "labels": ["dependencies"],
+
   "schedule": ["before 7am on monday"],
   "timezone": "Europe/Zurich",
   "prHourlyLimit": 0,
@@ -78,12 +78,14 @@
         "@tailwindcss/postcss",
         "prettier-plugin-tailwindcss"
       ],
-      "groupName": "tailwindcss-ecosystem"
+      "groupName": "tailwindcss-ecosystem",
+      "labels": ["merge-queue"]
     },
     {
       "description": "Group Prisma packages (client + schema must match)",
       "groupName": "prisma",
-      "matchPackageNames": ["@prisma/**", "prisma"]
+      "matchPackageNames": ["@prisma/**", "prisma"],
+      "labels": ["merge-queue"]
     },
     {
       "description": "Group Playwright packages (test runner + browsers)",
@@ -92,7 +94,8 @@
         "@playwright/**",
         "playwright",
         "@axe-core/playwright"
-      ]
+      ],
+      "labels": ["merge-queue"]
     },
     {
       "description": "Security updates: high priority",
