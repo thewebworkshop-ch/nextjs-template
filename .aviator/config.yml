@@ -59,3 +59,14 @@ merge_rules:
         - name: "Trivy"
           acceptable_statuses:
             - success
+
+scenarios:
+  - name: "Auto-requeue Renovate PRs after conflict resolution"
+    trigger:
+      pull_request:
+        synchronize:
+    actions:
+      - script: |
+          if (event.pullRequest.user.login === "renovate[bot]") {
+            $mergequeue.queue({});
+          }
