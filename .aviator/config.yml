@@ -61,6 +61,37 @@ merge_rules:
             - success
 
 scenarios:
+  - name: "[DEBUG] Tag PRs removed from batch"
+    trigger:
+      mergequeue:
+        removed_from_batch:
+    actions:
+      - script: |
+          $github.addLabel("was-in-batch");
+
+  - name: "Mark Renovate CI failures"
+    trigger:
+      mergequeue:
+        removed_from_batch:
+    actions:
+      - script: |
+          if (
+            event.pullRequest.user.login === "renovate[bot]" &&
+            event.pullRequest.state !== "merged"
+          ) {
+            $github.addLabel("pr-ci-failing");
+          }
+
+  - name: "[DEBUG] Dump synchronize event"
+    trigger:
+      pull_request:
+        synchronize:
+    actions:
+      - script: |
+          if (event.pullRequest.user.login === "renovate[bot]") {
+            $github.addComment(JSON.stringify(event));
+          }
+
   - name: "Auto-requeue Renovate PRs after conflict resolution"
     trigger:
       pull_request:
@@ -68,5 +99,17 @@ scenarios:
     actions:
       - script: |
           if (event.pullRequest.user.login === "renovate[bot]") {
-            $mergequeue.queue({});
+            const hasCiFailing = event.pullRequest.labels.some(l => l.name === "pr-ci-failing");
+            if (!hasCiFailing) {
+              // Case A: conflict rebase → re-queue
+              $github.removeLabel("blocked");
+            } else {
+              // If lockfile-only rebase → do nothing
+              // If version bump → remove pr-ci-failing and re-queue
+              const diff = $github.compareCommits({ base: event.before, head: event.after });
+              if (diff.files.some(f => f.filename === "package.json")) {
+                $github.removeLabel("pr-ci-failing");
+                $github.removeLabel("blocked");
+              }
+            }
           }
