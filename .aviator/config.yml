@@ -68,5 +68,5 @@ scenarios:
     actions:
       - script: |
           if (event.pullRequest.user.login === "renovate[bot]") {
-            $mergequeue.queue({});
+            $github.removeLabel({ label: "blocked" });
           }
