@@ -63,16 +63,14 @@ merge_rules:
 scenarios:
   - name: "[DEBUG] Tag PRs removed from batch"
     trigger:
-      mergequeue:
-        removed_from_batch:
+      mergequeue: removed_from_batch
     actions:
       - script: |
           $github.addLabel("was-in-batch");
 
   - name: "Mark Renovate CI failures"
     trigger:
-      mergequeue:
-        removed_from_batch:
+      mergequeue: removed_from_batch
     actions:
       - script: |
           if (
@@ -84,8 +82,7 @@ scenarios:
 
   - name: "[DEBUG] Dump synchronize event"
     trigger:
-      pull_request:
-        synchronize:
+      pull_request: synchronize
     actions:
       - script: |
           if (event.pullRequest.user.login === "renovate[bot]") {
@@ -94,8 +91,7 @@ scenarios:
 
   - name: "Auto-requeue Renovate PRs after conflict resolution"
     trigger:
-      pull_request:
-        synchronize:
+      pull_request: synchronize
     actions:
       - script: |
           if (event.pullRequest.user.login === "renovate[bot]") {
