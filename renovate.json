@@ -12,22 +12,31 @@
   "timezone": "Europe/Zurich",
   "prHourlyLimit": 0,
   "prConcurrentLimit": 0,
-  "rebaseWhen": "never",
+  "rebaseWhen": "conflicted",
   "automerge": false,
+  "postUpdateOptions": ["pnpmDedupe"],
   "vulnerabilityAlerts": {
     "enabled": true,
     "labels": ["security", "merge-queue"],
-    "schedule": ["at any time"],
-    "minimumReleaseAge": "0 days"
+    "vulnerabilityFixStrategy": "highest"
   },
   "lockFileMaintenance": {
     "enabled": true,
-    "schedule": ["before 7am on monday"],
-    "labels": ["merge-queue"]
+    "schedule": ["before 7am on monday"]
   },
   "packageRules": [
     {
-      "description": "Digest updates: no minimumReleaseAge (no semver release date to check)",
+      "description": "Default: wait 3 days before creating PR",
+      "matchPackageNames": ["*"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "description": "Lock file maintenance",
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "labels": ["merge-queue"]
+    },
+    {
+      "description": "Digest updates: no minimumReleaseAge",
       "matchUpdateTypes": ["digest", "pinDigest"],
       "minimumReleaseAge": null
     },
@@ -54,13 +63,13 @@
       "labels": ["merge-queue"]
     },
     {
-      "description": "pnpm packageManager: automerge patches and minors after 7 days",
+      "description": "pnpm packageManager",
       "matchDepTypes": ["packageManager"],
       "matchUpdateTypes": ["patch", "minor"],
       "labels": ["merge-queue"]
     },
     {
-      "description": "Group Next.js and React ecosystem (App Router strict compatibility)",
+      "description": "Group Next.js and React ecosystem",
       "matchPackageNames": [
         "next",
         "eslint-config-next",
@@ -82,7 +91,7 @@
       "labels": ["merge-queue"]
     },
     {
-      "description": "Group Prisma packages (client + schema must match)",
+      "description": "Group Prisma packages",
       "groupName": "prisma",
       "matchPackageNames": ["@prisma/**", "prisma"],
       "labels": ["merge-queue"]
@@ -98,41 +107,28 @@
       "labels": ["merge-queue"]
     },
     {
-      "description": "Security updates: high priority",
-      "matchDepTypes": ["dependencies", "devDependencies"],
-      "matchUpdateTypes": ["patch", "minor", "major"],
-      "matchCategories": ["security"],
-      "prPriority": 10
-    },
-    {
-      "description": "Default: wait 7 days before creating PR (badges stabilize)",
-      "matchPackageNames": ["*"],
-      "minimumReleaseAge": "7 days"
-    },
-    {
-      "description": "Major updates: require dashboard approval (14-day delay for community vetting)",
+      "description": "Major updates: require dashboard approval",
       "matchUpdateTypes": ["major"],
       "dependencyDashboardApproval": true,
-      "minimumReleaseAge": "14 days"
+      "minimumReleaseAge": "14 days",
+      "labels": ["major"]
     },
     {
-      "description": "Production minor: require dashboard approval (7-day delay for badge stabilization)",
+      "description": "Production minor: require dashboard approval",
       "matchDepTypes": ["dependencies"],
       "matchUpdateTypes": ["minor"],
-      "dependencyDashboardApproval": true,
-      "minimumReleaseAge": "7 days"
+      "dependencyDashboardApproval": true
     },
     {
-      "description": "Dev dependencies minor/patch: automerge via Aviator",
+      "description": "Dev dependencies minor/patch",
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["patch", "minor"],
       "labels": ["merge-queue"]
     },
     {
-      "description": "Production deps: patch after 14 days, automerge via Aviator",
+      "description": "Production dependencies patch",
       "matchDepTypes": ["dependencies"],
       "matchUpdateTypes": ["patch"],
-      "minimumReleaseAge": "14 days",
       "labels": ["merge-queue"]
     },
     {
