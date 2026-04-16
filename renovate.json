@@ -18,7 +18,8 @@
   "vulnerabilityAlerts": {
     "enabled": true,
     "labels": ["security", "merge-queue"],
-    "vulnerabilityFixStrategy": "highest"
+    "vulnerabilityFixStrategy": "highest",
+    "minimumReleaseAge": null
   },
   "lockFileMaintenance": {
     "enabled": true,
