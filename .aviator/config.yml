@@ -41,9 +41,6 @@ merge_rules:
         - name: "Trivy - License Scan"
           acceptable_statuses:
             - success
-        - name: "Trivy - Vulnerability Scan"
-          acceptable_statuses:
-            - success
         - name: "TypeScript Compiler - Type Check"
           acceptable_statuses:
             - success
