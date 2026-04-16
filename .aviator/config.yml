@@ -41,9 +41,6 @@ merge_rules:
         - name: "Trivy - License Scan"
           acceptable_statuses:
             - success
-        - name: "Trivy - Vulnerability Scan"
-          acceptable_statuses:
-            - success
         - name: "TypeScript Compiler - Type Check"
           acceptable_statuses:
             - success
@@ -61,13 +58,6 @@ merge_rules:
             - success
 
 scenarios:
-  - name: "[DEBUG] Tag PRs removed from batch"
-    trigger:
-      mergequeue: removed_from_batch
-    actions:
-      - github:
-          add_label: was-in-batch
-
   - name: "Mark Renovate CI failures"
     trigger:
       mergequeue: removed_from_batch
@@ -79,16 +69,6 @@ scenarios:
               event.pullRequest.state !== "merged"
             ) {
               $github.addLabel("pr-ci-failing");
-            }
-
-  - name: "[DEBUG] Dump synchronize event"
-    trigger:
-      pull_request: synchronize
-    actions:
-      - script:
-          code: |
-            if (event.pullRequest.user.login === "renovate[bot]") {
-              $github.addComment(JSON.stringify(event));
             }
 
   - name: "Auto-requeue Renovate PRs after conflict resolution"
