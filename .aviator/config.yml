@@ -53,9 +53,6 @@ merge_rules:
         - name: "Semgrep PRO"
           acceptable_statuses:
             - success
-        - name: "Trivy"
-          acceptable_statuses:
-            - success
 
 scenarios:
   - name: "Mark Renovate CI failures"
