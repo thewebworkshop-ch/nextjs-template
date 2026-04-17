@@ -8,8 +8,8 @@ on:
     branches:
       - main
   schedule:
-    # Run weekly on Monday at 12pm UTC (1pm/2pm Europe/Zurich)
-    - cron: "0 12 * * 1"
+    # Run weekly on Thursday at 4am UTC (6am Europe/Zurich in summer, 5am in winter)
+    - cron: "0 4 * * 4"
 
 jobs:
   trivy-vuln:
