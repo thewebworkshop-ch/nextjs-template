@@ -13,7 +13,7 @@ on:
 
 jobs:
   trivy-vuln:
-    if: "github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && github.actor != 'aviator-app[bot]'"
+    if: "github.event_name != 'pull_request' || (github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && github.actor != 'aviator-app[bot]')"
     name: Trivy - Vulnerability Scan
     runs-on: ubuntu-latest
     timeout-minutes: 15
