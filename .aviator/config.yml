@@ -77,16 +77,27 @@ scenarios:
           code: |
             if (event.pullRequest.user.login === "renovate[bot]") {
               const hasCiFailing = event.pullRequest.labels.some(l => l.name === "pr-ci-failing");
+
               if (!hasCiFailing) {
                 // Case A: conflict rebase → re-queue
                 $github.removeLabel("blocked");
               } else {
-                // Case B: lockfile-only rebase → do nothing
-                // Case C: version bump → remove pr-ci-failing and re-queue
-                const diff = $github.compareCommits({ base: event.before, head: event.after });
-                if (diff.files.some(f => f.filename === "package.json")) {
+                // Isolate the tip commit of each PR state to compare messages
+                const diffOld = $github.compareCommits({ base: event.before + "~1", head: event.before });
+                const diffNew = $github.compareCommits({ base: event.after + "~1", head: event.after });
+
+                const oldMsg = (diffOld.commits && diffOld.commits.length > 0)
+                  ? diffOld.commits[diffOld.commits.length - 1].commit.message
+                  : "";
+                const newMsg = (diffNew.commits && diffNew.commits.length > 0)
+                  ? diffNew.commits[diffNew.commits.length - 1].commit.message
+                  : "";
+
+                if (oldMsg !== newMsg) {
+                  // Case C: version bump → remove pr-ci-failing and re-queue
                   $github.removeLabel("pr-ci-failing");
                   $github.removeLabel("blocked");
                 }
+                // Case B: lockfile-only rebase → do nothing
               }
             }

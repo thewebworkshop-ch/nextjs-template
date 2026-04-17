@@ -8,12 +8,12 @@ on:
     branches:
       - main
   schedule:
-    # Run weekly on Monday at 12pm UTC (1pm/2pm Europe/Zurich)
-    - cron: "0 12 * * 1"
+    # Run weekly on Thursday at 4am UTC (6am Europe/Zurich in summer, 5am in winter)
+    - cron: "0 4 * * 4"
 
 jobs:
   trivy-vuln:
-    if: "github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && github.actor != 'aviator-app[bot]'"
+    if: "github.event_name != 'pull_request' || (github.actor != 'renovate[bot]' && github.actor != 'dependabot[bot]' && github.actor != 'aviator-app[bot]')"
     name: Trivy - Vulnerability Scan
     runs-on: ubuntu-latest
     timeout-minutes: 15
