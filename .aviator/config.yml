@@ -19,6 +19,7 @@ merge_rules:
       max_parallel_builds: 1
       max_requeue_attempts: 0
       skip_draft_when_up_to_date: false
+      bypass_stuck_state: true
       override_required_checks:
         - name: "Docker Build & E2E Tests"
           acceptable_statuses:
