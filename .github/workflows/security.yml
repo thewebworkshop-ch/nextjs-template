@@ -219,11 +219,16 @@ jobs:
 
       - name: Run Semgrep Scan (full scan)
         if: "github.actor != 'aviator-app[bot]'"
-        run: semgrep ci --sarif-output=semgrep-results.sarif
+        run: |
+          echo "{}" > dummy_payload.json
+          export GITHUB_EVENT_PATH="$(pwd)/dummy_payload.json"
+          export GITHUB_EVENT_NAME="push"
+          export GITHUB_REF="refs/heads/main"
+          export GITHUB_BASE_REF=""
+          export GITHUB_HEAD_REF=""
+          semgrep ci --sarif-output=semgrep-results.sarif
         env:
           SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
-          GITHUB_BASE_REF: ""
-          GITHUB_HEAD_REF: ""
 
       - name: Upload Semgrep results to GitHub Security
         if: always()
