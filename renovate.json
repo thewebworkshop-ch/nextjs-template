@@ -43,7 +43,7 @@
     },
     {
       "description": "Group Docker updates",
-      "matchManagers": ["dockerfile"],
+      "matchManagers": ["dockerfile", "docker-compose"],
       "groupName": "docker",
       "pinDigests": true,
       "matchUpdateTypes": ["patch", "minor", "pin", "digest", "pinDigest"],
