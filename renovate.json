@@ -46,7 +46,14 @@
       "matchManagers": ["dockerfile", "docker-compose"],
       "groupName": "docker",
       "pinDigests": true,
-      "matchUpdateTypes": ["patch", "minor", "pin", "digest", "pinDigest"],
+      "matchUpdateTypes": [
+        "patch",
+        "minor",
+        "final",
+        "pin",
+        "digest",
+        "pinDigest"
+      ],
       "labels": ["merge-queue"]
     },
     {
@@ -60,7 +67,7 @@
       "description": "Group Node.js updates",
       "matchDepNames": ["node"],
       "groupName": "node",
-      "matchUpdateTypes": ["patch", "minor"],
+      "matchUpdateTypes": ["patch", "minor", "final"],
       "labels": ["merge-queue"]
     },
     {
